@@ -6,5 +6,11 @@
   "UniqueID": "Vertigon.StatsAsTokens",
   "EntryDll": "StatsAsTokens.dll",
   "MinimumApiVersion": "3.0.0",
-  "UpdateKeys": [ ]
+  "UpdateKeys": [],
+  "Dependencies": [
+    {
+      "UniqueID": "Pathoschild.ContentPatcher",
+      "MinimumVersion": "1.23.0"
+    }
+  ]
 }

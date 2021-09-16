@@ -12,30 +12,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see https://www.gnu.org/licenses/.
 
-using HarmonyLib;
 using StardewModdingAPI;
-using System;
 
 namespace StatsAsTokens
 {
-	class HarmonyPatches
+	internal class Globals
 	{
-
-		/// <returns><c>True</c> if successfully patched, <c>False</c> if Exception is encountered.</returns>
-		public static bool ApplyHarmonyPatches()
-		{
-			try
-			{
-				Harmony harmony = new(Globals.Manifest.UniqueID);
-				harmony.PatchAll();
-
-				return true;
-			}
-			catch (Exception e)
-			{
-				Globals.Monitor.Log(e.ToString(), LogLevel.Error);
-				return false;
-			}
-		}
+		public static IManifest Manifest { get; set; }
+		public static IModHelper Helper { get; set; }
+		public static IMonitor Monitor { get; set; }
 	}
 }
