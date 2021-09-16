@@ -1,7 +1,7 @@
 ### Stats As Tokens
 *by Vertigon*
 
-
+[NexusMods Page](https://www.nexusmods.com/stardewvalley/mods/9659)
 
 This mod allows Content Patcher pack creators to access all stats tracked by the game through custom CP tokens, allowing for patches to trigger
 on various player milestones including number of seeds sown, truffles found, trash cans checked and many more! See below for a complete list.
@@ -24,7 +24,7 @@ This token takes exactly two named arguments (both must be provided in order for
 * **`stat`**: The stat to track. See below for a complete list.
 
 For example:
-`{{Vertigon.StatsAsTokens/Stats:player=host|stat:diamondsFound}}` will be parsed as the number of diamonds found by the host player.
+`{{Vertigon.StatsAsTokens/Stats:player=host|stat=diamondsFound}}` will be parsed as the number of diamonds found by the host player.
 
 Here is a complete list of stats currently usable as arguments:
 
