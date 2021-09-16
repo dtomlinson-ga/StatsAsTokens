@@ -130,15 +130,24 @@ namespace StatsAsTokens
 
 			if (Game1.stats != null)
 			{
+				// if this instance is main player, update both stats dicts to this instance's stats
 				if (Game1.player.IsMainPlayer)
 				{
 					hasChanged = !Game1.stats.Equals(statsDict["hostPlayer"]);
-					if (hasChanged) statsDict["hostPlayer"] = Game1.stats;
+					if (hasChanged)
+					{
+						statsDict["hostPlayer"] = Game1.stats;
+						statsDict["localPlayer"] = Game1.stats;
+					}
 				}
+				// otherwise, update local player's and main player's stats separately
 				else
 				{
 					hasChanged = !Game1.stats.Equals(statsDict["localPlayer"]);
 					if (hasChanged) statsDict["localPlayer"] = Game1.stats;
+
+					hasChanged = !Game1.MasterPlayer.stats.Equals(statsDict["hostPlayer"]);
+					if (hasChanged) statsDict["hostPlayer"] = Game1.MasterPlayer.stats;
 				}
 			}
 
