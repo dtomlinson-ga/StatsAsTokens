@@ -81,6 +81,12 @@ Here is a complete list of stats currently usable as arguments:
 * goodFriends;
 * totalMoneyGifted;
 * individualMoneyEarned;
+* timesEnchanted
+* beachFarmSpawns
+* hardModeMonstersKilled
+* childrenTurnedToDoves
+* boatRidesToIsland
+* trashCansChecked
 
 ### Upcoming Features
  * Track numbers of each type of monster slain
