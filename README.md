@@ -1,7 +1,7 @@
 ### Stats As Tokens
 *by Vertigon*
 
-[NexusMods](https://www.nexusmods.com/stardewvalley/mods/9444)
+
 
 This mod allows Content Patcher pack creators to access all stats tracked by the game through custom CP tokens, allowing for patches to trigger
 on various player milestones including number of seeds sown, truffles found, trash cans checked and many more! See below for a complete list.
@@ -18,75 +18,75 @@ Download this mod, place it in your Mods folder, and list it as a dependency in 
 Only one custom token is provided: **`Vertigon.StatsAsTokens/Stats`**
 
 This token takes exactly two named arguments (both must be provided in order for it to work):
-* `player`: Must be one of the following:
+* **`player`**: Must be one of the following:
   * `host`: The player hosting the lobby, or
   * `local`: The player on the local splitscreen or computer, if not the host
-* `stat`: The stat to track. See below for a complete list.
+* **`stat`**: The stat to track. See below for a complete list.
 
 For example:
-`{{Vertigon.StatsAsTokens/Stats:player=host|stat:diamondsFound}} will be parsed as the number of diamonds found by the host player.
+`{{Vertigon.StatsAsTokens/Stats:player=host|stat:diamondsFound}}` will be parsed as the number of diamonds found by the host player.
 
 Here is a complete list of stats currently usable as arguments:
 
-* seedsSown;
-* itemsShipped;
-* itemsCooked;
-* itemsCrafted;
-* chickenEggsLayed;
-* duckEggsLayed;
-* cowMilkProduced;
-* goatMilkProduced;
-* rabbitWoolProduced;
-* sheepWoolProduced;
-* cheeseMade;
-* goatCheeseMade;
-* trufflesFound;
-* stoneGathered;
-* rocksCrushed;
-* dirtHoed;
-* giftsGiven;
-* timesUnconscious;
-* averageBedtime;
-* timesFished;
-* fishCaught;
-* bouldersCracked;
-* stumpsChopped;
-* stepsTaken;
-* monstersKilled;
-* diamondsFound;
-* prismaticShardsFound;
-* otherPreciousGemsFound;
-* caveCarrotsFound;
-* copperFound;
-* ironFound;
-* coalFound;
-* coinsFound;
-* goldFound;
-* iridiumFound;
-* barsSmelted;
-* beveragesMade;
-* preservesMade;
-* piecesOfTrashRecycled;
-* mysticStonesCrushed;
-* daysPlayed;
-* weedsEliminated;
-* sticksChopped;
-* notesFound;
-* questsCompleted;
-* starLevelCropsShipped;
-* cropsShipped;
-* itemsForaged;
-* slimesKilled;
-* geodesCracked;
-* goodFriends;
-* totalMoneyGifted;
-* individualMoneyEarned;
-* timesEnchanted
-* beachFarmSpawns
-* hardModeMonstersKilled
-* childrenTurnedToDoves
-* boatRidesToIsland
-* trashCansChecked
+* `seedsSown`
+* `itemsShipped`
+* `itemsCooked`
+* `itemsCrafted`
+* `chickenEggsLayed`
+* `duckEggsLayed`
+* `cowMilkProduced`
+* `goatMilkProduced`
+* `rabbitWoolProduced`
+* `sheepWoolProduced`
+* `cheeseMade`
+* `goatCheeseMade`
+* `trufflesFound`
+* `stoneGathered`
+* `rocksCrushed`
+* `dirtHoed`
+* `giftsGiven`
+* `timesUnconscious`
+* `averageBedtime`
+* `timesFished`
+* `fishCaught`
+* `bouldersCracked`
+* `stumpsChopped`
+* `stepsTaken`
+* `monstersKilled`
+* `diamondsFound`
+* `prismaticShardsFound`
+* `otherPreciousGemsFound`
+* `caveCarrotsFound`
+* `copperFound`
+* `ironFound`
+* `coalFound`
+* `coinsFound`
+* `goldFound`
+* `iridiumFound`
+* `barsSmelted`
+* `beveragesMade`
+* `preservesMade`
+* `piecesOfTrashRecycled`
+* `mysticStonesCrushed`
+* `daysPlayed`
+* `weedsEliminated`
+* `sticksChopped`
+* `notesFound`
+* `questsCompleted`
+* `starLevelCropsShipped`
+* `cropsShipped`
+* `itemsForaged`
+* `slimesKilled`
+* `geodesCracked`
+* `goodFriends`
+* `totalMoneyGifted`
+* `individualMoneyEarned`
+* `timesEnchanted`
+* `beachFarmSpawns`
+* `hardModeMonstersKilled`
+* `childrenTurnedToDoves`
+* `boatRidesToIsland`
+* `trashCansChecked`
 
 ### Upcoming Features
  * Track numbers of each type of monster slain
