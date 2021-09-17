@@ -13,15 +13,17 @@ Download this mod, place it in your Mods folder, and list it as a dependency in 
 * [SMAPI](https://smapi.io/)  v3.12.0 or higher is a required dependency.
 * [Content Patcher](https://www.nexusmods.com/stardewvalley/mods/1915) v1.23.0 or higher is a required dependency.
 
-### Custom Tokens Provided
+## Custom Tokens Provided
 
-Only one custom token is provided: **`Vertigon.StatsAsTokens/Stats`**
+### **`Vertigon.StatsAsTokens/Stats`**
 
 This token takes exactly two named arguments (both must be provided in order for it to work):
 * **`player`**: Must be one of the following:
   * `host`: The player hosting the lobby, or
   * `local`: The player on the local splitscreen or computer, if not the host
 * **`stat`**: The stat to track. See below for a complete list.
+
+The arguments are case-insensitive and space-insensitive.
 
 For example:
 `{{Vertigon.StatsAsTokens/Stats:player=host|stat=diamondsFound}}` will be parsed as the number of diamonds found by the host player.
@@ -88,11 +90,81 @@ Here is a complete list of stats currently usable as arguments:
 * `boatRidesToIsland`
 * `trashCansChecked`
 
+### **`Vertigon.StatsAsTokens/MonstersKilled`**
+
+This token takes exactly two named arguments (both must be provided in order for it to work):
+* **`player`**: Must be one of the following:
+  * `host`: The player hosting the lobby, or
+  * `local`: The player on the local splitscreen or computer, if not the host
+* **`monster`**: The monster to check kills for. See below for a complete list.
+
+The arguments are case-insensitive and space-insensitive.
+
+For example:
+`{{Vertigon.StatsAsTokens/MonstersKilled:player=local|monster=Green Slime}}` will be parsed as the number of slimes (all slimes are considered Green Slime for this purpose) killed by the local player.
+
+Here is a complete list of monsters currently usable as arguments:
+
+* `Green Slime`
+* `Dust Spirit`
+* `Bat`
+* `Frost Bat`
+* `Lava Bat`
+* `Iridium Bat`
+* `Stone Golem`
+* `Wilderness Golem`
+* `Grub`
+* `Fly`
+* `Frost Jelly`
+* `Sludge`
+* `Shadow Guy`
+* `Ghost`
+* `Carbon Ghost`
+* `Duggy`
+* `Rock Crab`
+* `Lava Crab`
+* `Iridium Crab`
+* `Fireball`
+* `Squid Kid`
+* `Skeleton Warrior`
+* `Crow`*
+* `Frog`*
+* `Cat`*
+* `Shadow Brute`
+* `Shadow Shaman`
+* `Skeleton`
+* `Skeleton Mage`
+* `Metal Head`
+* `Spiker`
+* `Bug`
+* `Mummy`
+* `Big Slime`
+* `Serpent`
+* `Pepper Rex`
+* `Tiger Slime`
+* `Lava Lurk`
+* `Hot Head`
+* `Magma Sprite`
+* `Magma Duggy`
+* `Magma Sparker`
+* `False Magma Cap`
+* `Dwarvish Sentry`
+* `Putrid Ghost`
+* `Shadow Sniper`
+* `Spider`
+* `Royal Serpent`
+* `Blue Squid`
+\* not actually monsters, but stored in Data/Monsters. Probably will never be anything other than 0. 
+
+
+Theoretically this token supports custom monster types as well, so long as they provide the game with a proper Name variable when instantiated.
+
 ### Upcoming Features
- * Track numbers of each type of monster slain
  * Track custom stats such as numbers of each type of food eaten
+ * Track animals owned by players
 
 If you have any issues:
 Make sure SMAPI is up-to-date.
 You can reach me on the Stardew Valley discord (Vertigon#1851) or on the Nexus mod page.
 Please provide a SMAPI log, as well as your manifest.json, so that I can assist you better.
+
