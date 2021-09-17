@@ -9,24 +9,22 @@ using System.Threading.Tasks;
 
 namespace StatsAsTokens
 {
-	class StatToken
+	class MonstersKilledToken
 	{
 		/*********
 		** Fields
 		*********/
 		/// <summary>The game stats as of the last context update.</summary>
-		private Dictionary<string, Stats> statsDict = new(StringComparer.OrdinalIgnoreCase)
+		private Dictionary<string, SerializableDictionary<string, int>> monsterStatsDict = new(StringComparer.OrdinalIgnoreCase)
 		{
-			["hostPlayer"] = new Stats(),
-			["localPlayer"] = new Stats()
+			["hostPlayer"] = new Stats().specificMonstersKilled,
+			["localPlayer"] = new Stats().specificMonstersKilled
 		};
-
-		private List<FieldInfo> fields = new();
-
 
 		/*********
 		** Public methods
 		*********/
+
 		/****
 		** Metadata
 		****/
@@ -49,18 +47,6 @@ namespace StatsAsTokens
 		public bool CanHaveMultipleValues(string input = null)
 		{
 			return false;
-		}
-
-		/// <summary>Get whether the token always returns a value within a bounded numeric range for the given input. Mutually exclusive with <see cref="HasBoundedValues"/>.</summary>
-		/// <param name="input">The input arguments, if any.</param>
-		/// <param name="min">The minimum value this token may return.</param>
-		/// <param name="max">The maximum value this token may return.</param>
-		/// <remarks>Default false.</remarks>
-		public bool HasBoundedRangeValues(string input, out int min, out int max)
-		{
-			min = 0;
-			max = int.MaxValue;
-			return true;
 		}
 
 		/// <summary>Validate that the provided input arguments are valid.</summary>
@@ -93,22 +79,14 @@ namespace StatsAsTokens
 					}
 				}
 
-				if (!args[1].Contains("stat="))
+				if (!args[1].Contains("monster="))
 				{
-					error += "Named argument 'stat' not provided. ";
+					error += "Named argument 'monster' not provided. ";
 					return false;
 				}
 				else if (args[1].IndexOf('=') == args[1].Length - 1)
 				{
-					error += "Named argument 'stat' must be a string consisting of alphanumeric values. ";
-				}
-				else
-				{
-					string statArg = args[1].Substring(args[1].IndexOf('=') + 1);
-					if (statArg.Any(ch => !char.IsLetterOrDigit(ch) && ch != ' '))
-					{
-						error += "Only alphanumeric values may be provided to 'stat' argument. ";
-					}
+					error += "Named argument 'monster' must be a string consisting of alphanumeric characters. ";
 				}
 			}
 			else
@@ -133,21 +111,21 @@ namespace StatsAsTokens
 				// if this instance is main player, update both stats dicts to this instance's stats
 				if (Game1.player.IsMainPlayer)
 				{
-					hasChanged = !Game1.stats.Equals(statsDict["hostPlayer"]);
+					hasChanged = !Game1.stats.specificMonstersKilled.Equals(monsterStatsDict["hostPlayer"]);
 					if (hasChanged)
 					{
-						statsDict["hostPlayer"] = Game1.stats;
-						statsDict["localPlayer"] = Game1.stats;
+						monsterStatsDict["hostPlayer"] = Game1.stats.specificMonstersKilled;
+						monsterStatsDict["localPlayer"] = Game1.stats.specificMonstersKilled;
 					}
 				}
 				// otherwise, update local player's and main player's stats separately
 				else
 				{
-					hasChanged = !Game1.stats.Equals(statsDict["localPlayer"]);
-					if (hasChanged) statsDict["localPlayer"] = Game1.stats;
+					hasChanged = !Game1.stats.specificMonstersKilled.Equals(monsterStatsDict["localPlayer"]);
+					if (hasChanged) monsterStatsDict["localPlayer"] = Game1.stats.specificMonstersKilled;
 
-					hasChanged = !Game1.MasterPlayer.stats.Equals(statsDict["hostPlayer"]);
-					if (hasChanged) statsDict["hostPlayer"] = Game1.MasterPlayer.stats;
+					hasChanged = !Game1.MasterPlayer.stats.specificMonstersKilled.Equals(monsterStatsDict["hostPlayer"]);
+					if (hasChanged) monsterStatsDict["hostPlayer"] = Game1.MasterPlayer.stats.specificMonstersKilled;
 				}
 			}
 
@@ -169,62 +147,49 @@ namespace StatsAsTokens
 			string[] args = input.Split('|');
 
 			string playerType = args[0].Substring(args[0].IndexOf('=') + 1).Trim().ToLower().Replace("player", "");
-			string stat = args[1].Substring(args[1].IndexOf('=') + 1).Trim().ToLower();
+			string monster = args[1].Substring(args[1].IndexOf('=') + 1).Trim().ToLower();
 
 			if (playerType.Equals("host"))
 			{
-				bool found = TryGetField(stat, "hostPlayer", out string hostStat);
+				bool found = TryGetMonsterStat(monster, "hostPlayer", out string monsterNum);
 
 				if (found)
 				{
-					output.Add(hostStat);
+					output.Add(monsterNum);
 				}
 			}
 			else if (playerType.Equals("local"))
 			{
-				bool found = TryGetField(stat, "localPlayer", out string hostStat);
+				bool found = TryGetMonsterStat(monster, "localPlayer", out string monsterNum);
 
 				if (found)
 				{
-					output.Add(hostStat);
+					output.Add(monsterNum);
 				}
 			}
 
 			return output;
 		}
 
-		private bool TryGetField(string statField, string playerType, out string foundStat)
+		private bool TryGetMonsterStat(string monsterName, string playerType, out string monsterNum)
 		{
 			bool found = false;
-			foundStat = "";
+			monsterNum = "";
 
-			if (fields.Count() == 0)
+			if (playerType.Equals("hostPlayer") || playerType.Equals("localPlayer"))
 			{
-				fields = typeof(Stats).GetFields().ToList();
-			}
-
-			foreach (FieldInfo field in fields)
-			{
-				if (field.Name.ToLower().Equals(statField))
+				foreach (string key in monsterStatsDict[playerType].Keys)
 				{
-					found = true;
-					foundStat = field.GetValue(statsDict[playerType]).ToString();
-				}
-			}
-
-			if (!found)
-			{
-				foreach (string key in statsDict[playerType].stat_dictionary.Keys)
-				{
-					if (key.ToLower().Equals(statField))
+					if (key.ToLower().Equals(monsterName))
 					{
 						found = true;
-						foundStat = statsDict[playerType].stat_dictionary[key].ToString();
+						monsterNum = monsterStatsDict[playerType][key].ToString();
 					}
 				}
 			}
 
 			return found;
 		}
+
 	}
 }

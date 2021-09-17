@@ -65,6 +65,7 @@ namespace StatsAsTokens
 			if (api == null) return;
 
 			api.RegisterToken(Globals.Manifest, "Stats", new StatToken());
+			api.RegisterToken(Globals.Manifest, "MonstersKilled", new MonstersKilledToken());
 		}
 	}
 }

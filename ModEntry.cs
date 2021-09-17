@@ -14,6 +14,9 @@ namespace StatsAsTokens
 		{
 			SetUpGlobals(helper);
 			SetUpEventHooks();
+
+			//testing
+			//SetUpConsoleCommands();
 		}
 		
 		private void SetUpEventHooks()
@@ -24,6 +27,14 @@ namespace StatsAsTokens
 				ContentPatcherHelper.RegisterSimpleTokens();
 				ContentPatcherHelper.RegisterAdvancedTokens();
 			};
+		}
+
+		private void SetUpConsoleCommands()
+		{
+			Globals.Helper.ConsoleCommands.Add("lm", "List monster currently in monsters killed dict", (name, args) =>
+			{
+				Globals.Monitor.Log(string.Join("\n", Game1.stats.specificMonstersKilled.Keys));
+			});
 		}
 
 		private void SetUpGlobals(IModHelper helper)
