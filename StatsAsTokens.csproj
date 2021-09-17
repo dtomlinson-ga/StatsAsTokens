@@ -38,6 +38,7 @@
   <ItemGroup>
     <Reference Include="ContentPatcher">
       <HintPath>D:\Games\SteamLibrary\steamapps\common\Stardew Valley\Mods\ContentPatcher\ContentPatcher.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Microsoft.Build" />
     <Reference Include="Microsoft.Build.Framework" />
