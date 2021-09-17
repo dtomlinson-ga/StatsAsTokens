@@ -168,8 +168,8 @@ namespace StatsAsTokens
 
 			string[] args = input.Split('|');
 
-			string playerType = args[0].Substring(args[0].IndexOf('=') + 1).Trim().ToLower().Replace("player", "");
-			string stat = args[1].Substring(args[1].IndexOf('=') + 1).Trim().ToLower();
+			string playerType = args[0].Substring(args[0].IndexOf('=') + 1).Trim().ToLower().Replace("player", "").Replace(" ", "");
+			string stat = args[1].Substring(args[1].IndexOf('=') + 1).Trim().ToLower().Replace(" ", "");
 
 			if (playerType.Equals("host"))
 			{
@@ -216,7 +216,7 @@ namespace StatsAsTokens
 			{
 				foreach (string key in statsDict[playerType].stat_dictionary.Keys)
 				{
-					if (key.ToLower().Equals(statField))
+					if (key.ToLower().Replace(" ", "").Equals(statField))
 					{
 						found = true;
 						foundStat = statsDict[playerType].stat_dictionary[key].ToString();

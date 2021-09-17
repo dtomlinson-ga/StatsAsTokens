@@ -146,8 +146,8 @@ namespace StatsAsTokens
 
 			string[] args = input.Split('|');
 
-			string playerType = args[0].Substring(args[0].IndexOf('=') + 1).Trim().ToLower().Replace("player", "");
-			string monster = args[1].Substring(args[1].IndexOf('=') + 1).Trim().ToLower();
+			string playerType = args[0].Substring(args[0].IndexOf('=') + 1).Trim().ToLower().Replace("player", "").Replace(" ", "");
+			string monster = args[1].Substring(args[1].IndexOf('=') + 1).Trim().ToLower().Replace(" ", "");
 
 			if (playerType.Equals("host"))
 			{
@@ -180,7 +180,7 @@ namespace StatsAsTokens
 			{
 				foreach (string key in monsterStatsDict[playerType].Keys)
 				{
-					if (key.ToLower().Equals(monsterName))
+					if (key.ToLower().Replace(" ", "").Equals(monsterName))
 					{
 						found = true;
 						monsterNum = monsterStatsDict[playerType][key].ToString();
