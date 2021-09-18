@@ -14,11 +14,7 @@
 
 using ContentPatcher;
 using StardewModdingAPI;
-using StardewValley;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 
 namespace StatsAsTokens
 {
@@ -54,7 +50,10 @@ namespace StatsAsTokens
 		/// </summary>
 		public static void RegisterSimpleTokens()
 		{
-			if (api == null) return;
+			if (api == null)
+			{
+				return;
+			}
 		}
 
 		/// <summary>
@@ -62,7 +61,10 @@ namespace StatsAsTokens
 		/// </summary>
 		public static void RegisterAdvancedTokens()
 		{
-			if (api == null) return;
+			if (api == null)
+			{
+				return;
+			}
 
 			api.RegisterToken(Globals.Manifest, "Stats", new StatToken());
 			api.RegisterToken(Globals.Manifest, "MonstersKilled", new MonstersKilledToken());

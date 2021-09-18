@@ -1,33 +1,39 @@
-﻿using Force.DeepCloner;
+﻿// Copyright (C) 2021 Vertigon
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see https://www.gnu.org/licenses/.
+
 using StardewModdingAPI;
 using StardewValley;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StatsAsTokens
 {
-	class StatToken
+	internal class StatToken
 	{
 		/*********
 		** Fields
 		*********/
 		/// <summary>The game stats as of the last context update.</summary>
-		private Dictionary<string, Stats> statsDict;
+		private readonly Dictionary<string, Stats> statsDict;
 
 		private readonly FieldInfo[] statFields;
 
-
 		/*********
-		** Public methods
-		*********/
-
-		/****
 		** Constructor
-		****/
+		*********/
 		public StatToken()
 		{
 			statsDict = new(StringComparer.OrdinalIgnoreCase)
@@ -44,9 +50,14 @@ namespace StatsAsTokens
 			statFields = typeof(Stats).GetFields();
 		}
 
+		/*********
+		** Public methods
+		*********/
+
 		/****
 		** Metadata
 		****/
+
 		/// <summary>Get whether the token allows input arguments (e.g. an NPC name for a relationship token).</summary>
 		public bool AllowsInput()
 		{
@@ -139,6 +150,7 @@ namespace StatsAsTokens
 		/****
 		** State
 		****/
+
 		/// <summary>Update the values when the context changes.</summary>
 		/// <returns>Returns whether the value changed, which may trigger patch updates.</returns>
 		public bool UpdateContext()
@@ -227,7 +239,7 @@ namespace StatsAsTokens
 			{
 				pType = "localPlayer";
 
-				foreach (var field in statFields)
+				foreach (FieldInfo field in statFields)
 				{
 					if (field.FieldType.Equals(typeof(uint)))
 					{
@@ -263,7 +275,7 @@ namespace StatsAsTokens
 
 			// check cached master player stats against Game1's master player stats
 			// needs to happen whether player is host or local
-			foreach (var field in statFields)
+			foreach (FieldInfo field in statFields)
 			{
 				if (field.FieldType.Equals(typeof(uint)))
 				{
@@ -303,7 +315,9 @@ namespace StatsAsTokens
 			foundStat = "";
 
 			if (playerType.Equals("localPlayer") && Game1.IsMasterGame)
+			{
 				playerType = "hostPlayer";
+			}
 
 			foreach (FieldInfo field in statFields)
 			{

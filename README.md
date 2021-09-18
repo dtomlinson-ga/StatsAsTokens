@@ -101,7 +101,7 @@ This token takes exactly two named arguments (both must be provided in order for
 The arguments are case-insensitive and space-insensitive.
 
 For example:
-`{{Vertigon.StatsAsTokens/MonstersKilled:player=local|monster=Green Slime}}` will be parsed as the number of slimes (all slimes are considered Green Slime for this purpose) killed by the local player.
+`{{Vertigon.StatsAsTokens/MonstersKilled:player=local|monster=Green Slime}}` will be parsed as the number of slimes (all slimes except Big Slimes and Tiger Slimes are considered Green Slime for this purpose) killed by the local player.
 
 Here is a complete list of monsters currently usable as arguments:
 

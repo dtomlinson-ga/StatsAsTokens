@@ -1,25 +1,44 @@
-﻿using StardewModdingAPI;
+﻿// Copyright (C) 2021 Vertigon
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see https://www.gnu.org/licenses/.
+
+using StardewModdingAPI;
 using StardewValley;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StatsAsTokens
 {
-	class MonstersKilledToken
+	internal class MonstersKilledToken
 	{
 		/*********
 		** Fields
 		*********/
 		/// <summary>The game stats as of the last context update.</summary>
-		private Dictionary<string, SerializableDictionary<string, int>> monsterStatsDict = new(StringComparer.OrdinalIgnoreCase)
+		private readonly Dictionary<string, SerializableDictionary<string, int>> monsterStatsDict;
+
+		/*********
+		** Constructor
+		*********/
+		public MonstersKilledToken()
 		{
-			["hostPlayer"] = new Stats().specificMonstersKilled,
-			["localPlayer"] = new Stats().specificMonstersKilled
-		};
+			monsterStatsDict = new(StringComparer.OrdinalIgnoreCase)
+			{
+				["hostPlayer"] = InitializeMonstersKilledStats(),
+				["localPlayer"] = InitializeMonstersKilledStats()
+			};
+		}
 
 		/*********
 		** Public methods
@@ -28,6 +47,7 @@ namespace StatsAsTokens
 		/****
 		** Metadata
 		****/
+
 		/// <summary>Get whether the token allows input arguments (e.g. an NPC name for a relationship token).</summary>
 		public bool AllowsInput()
 		{
@@ -100,6 +120,7 @@ namespace StatsAsTokens
 		/****
 		** State
 		****/
+
 		/// <summary>Update the values when the context changes.</summary>
 		/// <returns>Returns whether the value changed, which may trigger patch updates.</returns>
 		public bool UpdateContext()
@@ -158,6 +179,19 @@ namespace StatsAsTokens
 		** Private methods
 		*********/
 
+		private SerializableDictionary<string, int> InitializeMonstersKilledStats()
+		{
+			SerializableDictionary<string, int> monstersKilled = new();
+			Dictionary<string, string> monsterData = Globals.Helper.Content.Load<Dictionary<string, string>>("Data/Monsters", ContentSource.GameContent);
+
+			foreach (KeyValuePair<string, string> monster in monsterData)
+			{
+				monstersKilled[monster.Key] = 0;
+			}
+
+			return monstersKilled;
+		}
+
 		/// <summary>
 		/// Checks to see if stats changed. Updates cached values if they are out of date.
 		/// </summary>
@@ -177,7 +211,12 @@ namespace StatsAsTokens
 			{
 				foreach (KeyValuePair<string, int> pair in monStats)
 				{
-					if (!cachedMonStats.ContainsKey(pair.Key) || !cachedMonStats[pair.Key].Equals(pair.Value))
+					if (!cachedMonStats.ContainsKey(pair.Key))
+					{
+						hasChanged = true;
+						cachedMonStats[pair.Key] = pair.Value;
+					}
+					else if (!cachedMonStats[pair.Key].Equals(pair.Value))
 					{
 						hasChanged = true;
 						cachedMonStats[pair.Key] = pair.Value;
@@ -194,7 +233,12 @@ namespace StatsAsTokens
 
 			foreach (KeyValuePair<string, int> pair in monStats)
 			{
-				if (!cachedMonStats.ContainsKey(pair.Key) || !cachedMonStats[pair.Key].Equals(pair.Value))
+				if (!cachedMonStats.ContainsKey(pair.Key))
+				{
+					hasChanged = true;
+					cachedMonStats[pair.Key] = pair.Value;
+				}
+				else if (!cachedMonStats[pair.Key].Equals(pair.Value))
 				{
 					hasChanged = true;
 					cachedMonStats[pair.Key] = pair.Value;
@@ -209,7 +253,9 @@ namespace StatsAsTokens
 			monsterNum = "";
 
 			if (playerType.Equals("localPlayer") && Game1.IsMasterGame)
+			{
 				playerType = "hostPlayer";
+			}
 
 			if (playerType.Equals("hostPlayer") || playerType.Equals("localPlayer"))
 			{
