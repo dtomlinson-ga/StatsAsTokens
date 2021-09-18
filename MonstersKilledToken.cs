@@ -108,26 +108,10 @@ namespace StatsAsTokens
 
 			if (Game1.stats != null)
 			{
-				// if this instance is main player, update both stats dicts to this instance's stats
-				if (Game1.player.IsMainPlayer)
-				{
-					hasChanged = !Game1.stats.specificMonstersKilled.Equals(monsterStatsDict["hostPlayer"]);
-					if (hasChanged)
-					{
-						monsterStatsDict["hostPlayer"] = Game1.stats.specificMonstersKilled;
-						monsterStatsDict["localPlayer"] = Game1.stats.specificMonstersKilled;
-					}
-				}
-				// otherwise, update local player's and main player's stats separately
-				else
-				{
-					hasChanged = !Game1.stats.specificMonstersKilled.Equals(monsterStatsDict["localPlayer"]);
-					if (hasChanged) monsterStatsDict["localPlayer"] = Game1.stats.specificMonstersKilled;
-
-					hasChanged = !Game1.MasterPlayer.stats.specificMonstersKilled.Equals(monsterStatsDict["hostPlayer"]);
-					if (hasChanged) monsterStatsDict["hostPlayer"] = Game1.MasterPlayer.stats.specificMonstersKilled;
-				}
+				hasChanged = DidStatsChange();
 			}
+
+			Globals.Monitor.Log($"Updating MonstersKilledToken context - context Changed: {hasChanged}");
 
 			return hasChanged;
 		}
@@ -170,11 +154,62 @@ namespace StatsAsTokens
 
 			return output;
 		}
+		/*********
+		** Private methods
+		*********/
 
+		/// <summary>
+		/// Checks to see if stats changed. Updates cached values if they are out of date.
+		/// </summary>
+		/// <returns></returns>
+		private bool DidStatsChange()
+		{
+			bool hasChanged = false;
+
+			string pType = "localPlayer";
+
+			SerializableDictionary<string, int> monStats = Game1.stats.specificMonstersKilled;
+			SerializableDictionary<string, int> cachedMonStats = monsterStatsDict[pType];
+
+			// check cached local player stats against Game1's local player stats
+			// only needs to happen if player is local
+			if (!Game1.IsMasterGame)
+			{
+				foreach (KeyValuePair<string, int> pair in monStats)
+				{
+					if (!cachedMonStats.ContainsKey(pair.Key) || !cachedMonStats[pair.Key].Equals(pair.Value))
+					{
+						hasChanged = true;
+						cachedMonStats[pair.Key] = pair.Value;
+					}
+				}
+			}
+
+			pType = "hostPlayer";
+
+			// check cached master player stats against Game1's master player stats
+			// needs to happen whether player is host or local
+			monStats = Game1.MasterPlayer.stats.specificMonstersKilled;
+			cachedMonStats = monsterStatsDict[pType];
+
+			foreach (KeyValuePair<string, int> pair in monStats)
+			{
+				if (!cachedMonStats.ContainsKey(pair.Key) || !cachedMonStats[pair.Key].Equals(pair.Value))
+				{
+					hasChanged = true;
+					cachedMonStats[pair.Key] = pair.Value;
+				}
+			}
+
+			return hasChanged;
+		}
 		private bool TryGetMonsterStat(string monsterName, string playerType, out string monsterNum)
 		{
 			bool found = false;
 			monsterNum = "";
+
+			if (playerType.Equals("localPlayer") && Game1.IsMasterGame)
+				playerType = "hostPlayer";
 
 			if (playerType.Equals("hostPlayer") || playerType.Equals("localPlayer"))
 			{

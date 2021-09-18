@@ -1,4 +1,5 @@
-﻿using StardewModdingAPI;
+﻿using Force.DeepCloner;
+using StardewModdingAPI;
 using StardewValley;
 using System;
 using System.Collections.Generic;
@@ -21,12 +22,13 @@ namespace StatsAsTokens
 			["localPlayer"] = new Stats()
 		};
 
-		private List<FieldInfo> fields = new();
+		private readonly FieldInfo[] statFields = typeof(Stats).GetFields();
 
 
 		/*********
 		** Public methods
 		*********/
+
 		/****
 		** Metadata
 		****/
@@ -130,26 +132,10 @@ namespace StatsAsTokens
 
 			if (Game1.stats != null)
 			{
-				// if this instance is main player, update both stats dicts to this instance's stats
-				if (Game1.player.IsMainPlayer)
-				{
-					hasChanged = !Game1.stats.Equals(statsDict["hostPlayer"]);
-					if (hasChanged)
-					{
-						statsDict["hostPlayer"] = Game1.stats;
-						statsDict["localPlayer"] = Game1.stats;
-					}
-				}
-				// otherwise, update local player's and main player's stats separately
-				else
-				{
-					hasChanged = !Game1.stats.Equals(statsDict["localPlayer"]);
-					if (hasChanged) statsDict["localPlayer"] = Game1.stats;
-
-					hasChanged = !Game1.MasterPlayer.stats.Equals(statsDict["hostPlayer"]);
-					if (hasChanged) statsDict["hostPlayer"] = Game1.MasterPlayer.stats;
-				}
+				hasChanged = DidStatsChange();
 			}
+
+			Globals.Monitor.Log($"Updating StatToken context - context changed: {hasChanged}");
 
 			return hasChanged;
 		}
@@ -193,17 +179,108 @@ namespace StatsAsTokens
 			return output;
 		}
 
+		/*********
+		** Private methods
+		*********/
+
+		/// <summary>
+		/// Checks to see if stats changed. Updates cached values if they are out of date.
+		/// </summary>
+		/// <returns></returns>
+		private bool DidStatsChange()
+		{
+			bool hasChanged = false;
+
+			string pType;
+
+			// check cached local player stats against Game1's local player stats
+			// only needs to happen if player is local
+			if (!Game1.IsMasterGame)
+			{
+				pType = "localPlayer";
+
+				foreach (var field in statFields)
+				{
+					if (field.GetType().Equals(typeof(uint)))
+					{
+						if (!field.GetValue(Game1.stats).Equals(field.GetValue(statsDict[pType])))
+						{
+							hasChanged = true;
+							field.SetValue(statsDict[pType], field.GetValue(Game1.stats));
+						}
+					}
+					else if (field.GetType().Equals(typeof(SerializableDictionary<string, int>)))
+					{
+						SerializableDictionary<string, int> monStats = (SerializableDictionary<string, int>)field.GetValue(Game1.stats);
+						SerializableDictionary<string, int> cachedMonStats = statsDict["localPlayer"].specificMonstersKilled;
+
+						foreach (KeyValuePair<string, int> pair in monStats)
+						{
+							if (!cachedMonStats.ContainsKey(pair.Key) || !cachedMonStats[pair.Key].Equals(pair.Value))
+							{
+								hasChanged = true;
+								cachedMonStats[pair.Key] = pair.Value;
+							}
+						}
+					}
+					else if (field.GetType().Equals(typeof(SerializableDictionary<string, uint>)))
+					{
+						SerializableDictionary<string, uint> otherStats = (SerializableDictionary<string, uint>)field.GetValue(Game1.stats);
+						SerializableDictionary<string, uint> cachedOtherStats = statsDict["localPlayer"].stat_dictionary;
+
+						foreach (KeyValuePair<string, uint> pair in otherStats)
+						{
+							if (!cachedOtherStats.ContainsKey(pair.Key) || !cachedOtherStats[pair.Key].Equals(pair.Value))
+							{
+								hasChanged = true;
+								cachedOtherStats[pair.Key] = pair.Value;
+							}
+						}
+					}
+				}
+			}
+
+			pType = "hostPlayer";
+
+			// check cached master player stats against Game1's master player stats
+			// needs to happen whether player is host or local
+			foreach (var field in statFields)
+			{
+				if (field.FieldType.Equals(typeof(uint)))
+				{
+					if (!field.GetValue(Game1.MasterPlayer.stats).Equals(field.GetValue(statsDict[pType])))
+					{
+						hasChanged = true;
+					}
+				}
+				else if (field.GetType().Equals(typeof(SerializableDictionary<string, uint>)))
+				{
+					SerializableDictionary<string, uint> otherStats = (SerializableDictionary<string, uint>)field.GetValue(Game1.MasterPlayer.stats);
+					SerializableDictionary<string, uint> cachedOtherStats = statsDict[pType].stat_dictionary;
+
+					foreach (KeyValuePair<string, uint> pair in otherStats)
+					{
+						if (!cachedOtherStats.ContainsKey(pair.Key) || !cachedOtherStats[pair.Key].Equals(pair.Value))
+						{
+							hasChanged = true;
+							cachedOtherStats[pair.Key] = pair.Value;
+						}
+					}
+				}
+			}
+
+			return hasChanged;
+		}
+
 		private bool TryGetField(string statField, string playerType, out string foundStat)
 		{
 			bool found = false;
 			foundStat = "";
 
-			if (fields.Count() == 0)
-			{
-				fields = typeof(Stats).GetFields().ToList();
-			}
+			if (playerType.Equals("localPlayer") && Game1.IsMasterGame)
+				playerType = "hostPlayer";
 
-			foreach (FieldInfo field in fields)
+			foreach (FieldInfo field in statFields)
 			{
 				if (field.Name.ToLower().Equals(statField))
 				{
