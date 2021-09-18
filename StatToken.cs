@@ -16,18 +16,33 @@ namespace StatsAsTokens
 		** Fields
 		*********/
 		/// <summary>The game stats as of the last context update.</summary>
-		private Dictionary<string, Stats> statsDict = new(StringComparer.OrdinalIgnoreCase)
-		{
-			["hostPlayer"] = new Stats(),
-			["localPlayer"] = new Stats()
-		};
+		private Dictionary<string, Stats> statsDict;
 
-		private readonly FieldInfo[] statFields = typeof(Stats).GetFields();
+		private readonly FieldInfo[] statFields;
 
 
 		/*********
 		** Public methods
 		*********/
+
+		/****
+		** Constructor
+		****/
+		public StatToken()
+		{
+			statsDict = new(StringComparer.OrdinalIgnoreCase)
+			{
+				["hostPlayer"] = new Stats(),
+				["localPlayer"] = new Stats()
+			};
+
+			foreach (KeyValuePair<string, Stats> pair in statsDict)
+			{
+				InitializeOtherStatFields(pair.Value);
+			}
+
+			statFields = typeof(Stats).GetFields();
+		}
 
 		/****
 		** Metadata
@@ -130,7 +145,7 @@ namespace StatsAsTokens
 		{
 			bool hasChanged = false;
 
-			if (Game1.stats != null)
+			if (SaveGame.loaded != null || Context.IsWorldReady)
 			{
 				hasChanged = DidStatsChange();
 			}
@@ -143,7 +158,7 @@ namespace StatsAsTokens
 		/// <summary>Get whether the token is available for use.</summary>
 		public bool IsReady()
 		{
-			return Game1.stats != null && Context.IsWorldReady;
+			return SaveGame.loaded != null || Context.IsWorldReady;
 		}
 
 		/// <summary>Get the current values.</summary>
@@ -183,6 +198,19 @@ namespace StatsAsTokens
 		** Private methods
 		*********/
 
+		private void InitializeOtherStatFields(Stats stats)
+		{
+			stats.stat_dictionary = new SerializableDictionary<string, uint>()
+			{
+				["timesEnchanted"] = 0,
+				["beachFarmSpawns"] = 0,
+				["childrenTurnedToDoves"] = 0,
+				["boatRidesToIsland"] = 0,
+				["hardModeMonstersKilled"] = 0,
+				["trashCansChecked"] = 0
+			};
+		}
+
 		/// <summary>
 		/// Checks to see if stats changed. Updates cached values if they are out of date.
 		/// </summary>
@@ -194,14 +222,14 @@ namespace StatsAsTokens
 			string pType;
 
 			// check cached local player stats against Game1's local player stats
-			// only needs to happen if player is local
+			// only needs to happen if player is local and not master
 			if (!Game1.IsMasterGame)
 			{
 				pType = "localPlayer";
 
 				foreach (var field in statFields)
 				{
-					if (field.GetType().Equals(typeof(uint)))
+					if (field.FieldType.Equals(typeof(uint)))
 					{
 						if (!field.GetValue(Game1.stats).Equals(field.GetValue(statsDict[pType])))
 						{
@@ -209,28 +237,19 @@ namespace StatsAsTokens
 							field.SetValue(statsDict[pType], field.GetValue(Game1.stats));
 						}
 					}
-					else if (field.GetType().Equals(typeof(SerializableDictionary<string, int>)))
-					{
-						SerializableDictionary<string, int> monStats = (SerializableDictionary<string, int>)field.GetValue(Game1.stats);
-						SerializableDictionary<string, int> cachedMonStats = statsDict["localPlayer"].specificMonstersKilled;
-
-						foreach (KeyValuePair<string, int> pair in monStats)
-						{
-							if (!cachedMonStats.ContainsKey(pair.Key) || !cachedMonStats[pair.Key].Equals(pair.Value))
-							{
-								hasChanged = true;
-								cachedMonStats[pair.Key] = pair.Value;
-							}
-						}
-					}
-					else if (field.GetType().Equals(typeof(SerializableDictionary<string, uint>)))
+					else if (field.FieldType.Equals(typeof(SerializableDictionary<string, uint>)))
 					{
 						SerializableDictionary<string, uint> otherStats = (SerializableDictionary<string, uint>)field.GetValue(Game1.stats);
 						SerializableDictionary<string, uint> cachedOtherStats = statsDict["localPlayer"].stat_dictionary;
 
 						foreach (KeyValuePair<string, uint> pair in otherStats)
 						{
-							if (!cachedOtherStats.ContainsKey(pair.Key) || !cachedOtherStats[pair.Key].Equals(pair.Value))
+							if (!cachedOtherStats.ContainsKey(pair.Key))
+							{
+								hasChanged = true;
+								cachedOtherStats[pair.Key] = pair.Value;
+							}
+							else if (!cachedOtherStats[pair.Key].Equals(pair.Value))
 							{
 								hasChanged = true;
 								cachedOtherStats[pair.Key] = pair.Value;
@@ -251,16 +270,22 @@ namespace StatsAsTokens
 					if (!field.GetValue(Game1.MasterPlayer.stats).Equals(field.GetValue(statsDict[pType])))
 					{
 						hasChanged = true;
+						field.SetValue(statsDict[pType], field.GetValue(Game1.MasterPlayer.stats));
 					}
 				}
-				else if (field.GetType().Equals(typeof(SerializableDictionary<string, uint>)))
+				else if (field.FieldType.Equals(typeof(SerializableDictionary<string, uint>)))
 				{
 					SerializableDictionary<string, uint> otherStats = (SerializableDictionary<string, uint>)field.GetValue(Game1.MasterPlayer.stats);
 					SerializableDictionary<string, uint> cachedOtherStats = statsDict[pType].stat_dictionary;
 
 					foreach (KeyValuePair<string, uint> pair in otherStats)
 					{
-						if (!cachedOtherStats.ContainsKey(pair.Key) || !cachedOtherStats[pair.Key].Equals(pair.Value))
+						if (!cachedOtherStats.ContainsKey(pair.Key))
+						{
+							hasChanged = true;
+							cachedOtherStats[pair.Key] = pair.Value;
+						}
+						else if (!cachedOtherStats[pair.Key].Equals(pair.Value))
 						{
 							hasChanged = true;
 							cachedOtherStats[pair.Key] = pair.Value;

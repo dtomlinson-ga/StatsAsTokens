@@ -106,7 +106,7 @@ namespace StatsAsTokens
 		{
 			bool hasChanged = false;
 
-			if (Game1.stats != null)
+			if (SaveGame.loaded != null || Context.IsWorldReady)
 			{
 				hasChanged = DidStatsChange();
 			}
@@ -119,7 +119,7 @@ namespace StatsAsTokens
 		/// <summary>Get whether the token is available for use.</summary>
 		public bool IsReady()
 		{
-			return Game1.stats != null && Context.IsWorldReady;
+			return SaveGame.loaded != null || Context.IsWorldReady;
 		}
 
 		/// <summary>Get the current values.</summary>
