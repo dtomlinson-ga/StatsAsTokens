@@ -156,14 +156,35 @@ Here is a complete list of monsters currently usable as arguments:
 * `Blue Squid`
 \* not actually monsters, but stored in Data/Monsters. Probably will never be anything other than 0. 
 
-
 Theoretically this token supports custom monster types as well, so long as they provide the game with a proper Name variable when instantiated.
 
+### **`Vertigon.StatsAsTokens/FoodEaten`**
+
+This token takes exactly two named arguments (both must be provided in order for it to work):
+* **`player`**: Must be one of the following:
+  * `host`: The player hosting the lobby, or
+  * `local`: The player on the local splitscreen or computer, if not the host
+* **`food`**: The edible item to check for amount eaten. You can provide either the food name, or the item ID. You can also provide the keyword `any` to get the total number of food items eaten by the selected player.
+
+The arguments are case-insensitive and space-insensitive.
+
+For example:
+`{{Vertigon.StatsAsTokens/FoodEaten:player=local|food=434}}` will be parsed as the number of Stardrops (item ID 434) eaten by the local player.
+`{{Vertigon.StatsAsTokens/FoodEaten:player=host|food=leek}}` will be parsed as the number of Leeks eaten by the host.
+`{{Vertigon.StatsAsTokens/FoodEaten:player=local|food=any}}` will be parsed as the total number of food items the local player has eaten.
+
+Note that this *should* support JA/DGA items. However, without a hard DGA dependency I can't initialize DGA items in the internal list (JA items should be okay).
+
+What does this mean?
+Well, if a player hasn't yet eaten a DGA item, if you try to get the number eaten it will be returned as "" instead of 0. This will break the Query expression.
+In practice, this will have the same effect as if the conditions were false, but it may have unintended effects. If DGA's API gets expanded I will revisit this issue and try to resolve it in a satisfactory manner.
+
+
 ### Upcoming Features
- * Track custom stats such as numbers of each type of food eaten
+ * Track more custom stats! Message me on Discord (Vertigon#1851) if you have ideas for custom stats to track
  * Track animals owned by players
 
-If you have any issues:
+####If you have any issues:
 Make sure SMAPI is up-to-date.
 You can reach me on the Stardew Valley discord (Vertigon#1851) or on the Nexus mod page.
 Please provide a SMAPI log, as well as your manifest.json, so that I can assist you better.
