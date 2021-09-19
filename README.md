@@ -169,15 +169,13 @@ This token takes exactly two named arguments (both must be provided in order for
 The arguments are case-insensitive and space-insensitive.
 
 For example:
-`{{Vertigon.StatsAsTokens/FoodEaten:player=local|food=434}}` will be parsed as the number of Stardrops (item ID 434) eaten by the local player.
-
-`{{Vertigon.StatsAsTokens/FoodEaten:player=host|food=leek}}` will be parsed as the number of Leeks eaten by the host.
-
-`{{Vertigon.StatsAsTokens/FoodEaten:player=local|food=any}}` will be parsed as the total number of food items the local player has eaten.
+`{{Vertigon.StatsAsTokens/FoodEaten:player=local|food=434}}` will be parsed as the number of Stardrops (item ID 434) eaten by the local player.  
+`{{Vertigon.StatsAsTokens/FoodEaten:player=host|food=leek}}` will be parsed as the number of Leeks eaten by the host.  
+`{{Vertigon.StatsAsTokens/FoodEaten:player=local|food=any}}` will be parsed as the total number of food items the local player has eaten.  
 
 Note that this *should* support JA/DGA items. However, without a hard DGA dependency I can't initialize DGA items in the internal list (JA items should be okay).
 
-What does this mean?
+What does this mean?  
 Well, if a player hasn't yet eaten a DGA item, if you try to get the number eaten it will be returned as "" instead of 0. This will break the Query expression.
 In practice, this will have the same effect as if the conditions were false, but it may have unintended effects. If DGA's API gets expanded I will revisit this issue and try to resolve it in a satisfactory manner.
 
