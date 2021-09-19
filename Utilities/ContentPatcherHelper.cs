@@ -13,7 +13,9 @@
 // along with this program.  If not, see https://www.gnu.org/licenses/.
 
 using ContentPatcher;
+using HarmonyLib;
 using StardewModdingAPI;
+using StardewValley;
 using System;
 
 namespace StatsAsTokens
@@ -66,8 +68,38 @@ namespace StatsAsTokens
 				return;
 			}
 
+			FoodEatenPatch();
+
 			api.RegisterToken(Globals.Manifest, "Stats", new StatToken());
 			api.RegisterToken(Globals.Manifest, "MonstersKilled", new MonstersKilledToken());
+			api.RegisterToken(Globals.Manifest, "FoodEaten", new FoodEatenToken());
+		}
+
+		public static void FoodEatenPatch()
+		{
+			try
+			{
+				Harmony harmony = new(Globals.Manifest.UniqueID);
+				harmony.Patch(
+					original: typeof(Farmer).GetMethod("eatObject"),
+					prefix: new HarmonyMethod(typeof(ContentPatcherHelper), nameof(eatObject_Prefix))
+				);
+
+				Globals.Monitor.Log("Patched eatObject() successfully");
+			}
+			catch (Exception ex)
+			{
+				Globals.Monitor.Log($"Exception encountered while patching method {nameof(eatObject_Prefix)}: {ex}");
+			}
+		}
+
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Harmony patch - match original method naming convention")]
+		public static void eatObject_Prefix(Farmer __instance, StardewValley.Object o)
+		{
+			string foodID = o.parentSheetIndex.ToString();
+
+			string pType = __instance.IsMainPlayer ? "hostPlayer" : "localPlayer";
+			FoodEatenToken.foodEatenDict[pType][foodID] = FoodEatenToken.foodEatenDict[pType].ContainsKey(foodID) ? FoodEatenToken.foodEatenDict[pType][foodID] + 1 : 1;
 		}
 	}
 }
