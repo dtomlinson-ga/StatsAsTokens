@@ -170,7 +170,9 @@ The arguments are case-insensitive and space-insensitive.
 
 For example:
 `{{Vertigon.StatsAsTokens/FoodEaten:player=local|food=434}}` will be parsed as the number of Stardrops (item ID 434) eaten by the local player.
+
 `{{Vertigon.StatsAsTokens/FoodEaten:player=host|food=leek}}` will be parsed as the number of Leeks eaten by the host.
+
 `{{Vertigon.StatsAsTokens/FoodEaten:player=local|food=any}}` will be parsed as the total number of food items the local player has eaten.
 
 Note that this *should* support JA/DGA items. However, without a hard DGA dependency I can't initialize DGA items in the internal list (JA items should be okay).
@@ -184,7 +186,7 @@ In practice, this will have the same effect as if the conditions were false, but
  * Track more custom stats! Message me on Discord (Vertigon#1851) if you have ideas for custom stats to track
  * Track animals owned by players
 
-####If you have any issues:
+#### If you have any issues:
 Make sure SMAPI is up-to-date.
 You can reach me on the Stardew Valley discord (Vertigon#1851) or on the Nexus mod page.
 Please provide a SMAPI log, as well as your manifest.json, so that I can assist you better.
