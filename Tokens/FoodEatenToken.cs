@@ -274,7 +274,10 @@ namespace StatsAsTokens
 				// "any" is special case - otherwise, try to match
 				if (!foodNameOrId.Equals("any"))
 				{
-					string fuzzyName = Utility.fuzzyItemSearch(foodNameOrId.Trim().Replace(" ", "").ToLower()).Name.ToLower();
+					string fuzzyName = Utility.fuzzyItemSearch(foodNameOrId)?.Name.Trim().Replace(" ", "").ToLower() ?? foodNameOrId;
+
+					// logging
+					Globals.Monitor.Log($"Parsed 'food' value {foodNameOrId} to {fuzzyName}");
 
 					Dictionary<int, string> objData = objectData;
 					foreach (KeyValuePair<int, string> pair in objData)
