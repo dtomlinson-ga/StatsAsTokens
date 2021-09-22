@@ -182,6 +182,8 @@ In practice, this will have the same effect as if the conditions were false, but
 
 ### Upcoming Features
  * Track more custom stats! Message me on Discord (Vertigon#1851) if you have ideas for custom stats to track
+	* Number of trees cut down (all / by type)
+	* Number of items gifted by type - game already tracks total number
  * Track animals owned by players
 
 #### If you have any issues:
