@@ -109,15 +109,53 @@ namespace StatsAsTokens
 		** State
 		****/
 
-		/// <summary>Update the values when the context changes.</summary>
-		/// <returns>Returns whether the value changed, which may trigger patch updates.</returns>
-		public override bool UpdateContext()
+		public override bool DidStatsChange()
 		{
 			bool hasChanged = false;
 
-			if (SaveGame.loaded != null || Context.IsWorldReady)
+			string pType = loc;
+
+			SerializableDictionary<string, int> foodEaten = foodEatenDict[pType];
+			SerializableDictionary<string, int> cachedFoodEaten = cachedFoodEatenDict[pType];
+
+			// check cached local player stats against Game1's local player stats
+			// only needs to happen if player is local
+			if (!Game1.IsMasterGame)
 			{
-				hasChanged = DidStatsChange();
+				foreach (KeyValuePair<string, int> pair in foodEaten)
+				{
+					if (!cachedFoodEaten.ContainsKey(pair.Key))
+					{
+						hasChanged = true;
+						cachedFoodEaten[pair.Key] = pair.Value;
+					}
+					else if (!cachedFoodEaten[pair.Key].Equals(pair.Value))
+					{
+						hasChanged = true;
+						cachedFoodEaten[pair.Key] = pair.Value;
+					}
+				}
+			}
+
+			pType = host;
+
+			// check cached master player stats against Game1's master player stats
+			// needs to happen whether player is host or local
+			foodEaten = foodEatenDict[pType];
+			cachedFoodEaten = cachedFoodEatenDict[pType];
+
+			foreach (KeyValuePair<string, int> pair in foodEaten)
+			{
+				if (!cachedFoodEaten.ContainsKey(pair.Key))
+				{
+					hasChanged = true;
+					cachedFoodEaten[pair.Key] = pair.Value;
+				}
+				else if (!cachedFoodEaten[pair.Key].Equals(pair.Value))
+				{
+					hasChanged = true;
+					cachedFoodEaten[pair.Key] = pair.Value;
+				}
 			}
 
 			return hasChanged;
@@ -172,62 +210,6 @@ namespace StatsAsTokens
 			// can't be done without hard dependency - mention to users that they will need to check if FoodEaten has value for DGA food before querying with it
 
 			return foodEaten;
-		}
-
-		/// <summary>
-		/// Checks to see if stats changed. Updates cached values if they are out of date.
-		/// </summary>
-		/// <returns><c>True</c> if stats have changed, <c>False</c> otherwise.</returns>
-		private bool DidStatsChange()
-		{
-			bool hasChanged = false;
-
-			string pType = loc;
-
-			SerializableDictionary<string, int> foodEaten = foodEatenDict[pType];
-			SerializableDictionary<string, int> cachedFoodEaten = cachedFoodEatenDict[pType];
-
-			// check cached local player stats against Game1's local player stats
-			// only needs to happen if player is local
-			if (!Game1.IsMasterGame)
-			{
-				foreach (KeyValuePair<string, int> pair in foodEaten)
-				{
-					if (!cachedFoodEaten.ContainsKey(pair.Key))
-					{
-						hasChanged = true;
-						cachedFoodEaten[pair.Key] = pair.Value;
-					}
-					else if (!cachedFoodEaten[pair.Key].Equals(pair.Value))
-					{
-						hasChanged = true;
-						cachedFoodEaten[pair.Key] = pair.Value;
-					}
-				}
-			}
-
-			pType = host;
-
-			// check cached master player stats against Game1's master player stats
-			// needs to happen whether player is host or local
-			foodEaten = foodEatenDict[pType];
-			cachedFoodEaten = cachedFoodEatenDict[pType];
-
-			foreach (KeyValuePair<string, int> pair in foodEaten)
-			{
-				if (!cachedFoodEaten.ContainsKey(pair.Key))
-				{
-					hasChanged = true;
-					cachedFoodEaten[pair.Key] = pair.Value;
-				}
-				else if (!cachedFoodEaten[pair.Key].Equals(pair.Value))
-				{
-					hasChanged = true;
-					cachedFoodEaten[pair.Key] = pair.Value;
-				}
-			}
-
-			return hasChanged;
 		}
 
 		/// <summary>

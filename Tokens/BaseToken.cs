@@ -67,18 +67,35 @@ namespace StatsAsTokens
 		** State
 		****/
 
+		/// <summary>Update the values when the context changes.</summary>
+		/// <returns>Returns whether the value changed, which may trigger patch updates.</returns>
+		public bool UpdateContext()
+		{
+			bool hasChanged = false;
+
+			if (SaveGame.loaded != null || Context.IsWorldReady)
+			{
+				hasChanged = DidStatsChange();
+			}
+
+			return hasChanged;
+		}
+
+		/// <summary>
+		/// Checks to see if stats changed. Updates cached values if they are out of date.
+		/// </summary>
+		/// <returns><c>True</c> if stats changed, <c>False</c> otherwise.</returns>
+		public abstract bool DidStatsChange();
+
 		/// <summary>Get whether the token is available for use.</summary>
 		public bool IsReady()
 		{
 			return SaveGame.loaded != null || Context.IsWorldReady;
 		}
 
-		/// <summary>Update the values when the context changes.</summary>
-		/// <returns>Returns whether the value changed, which may trigger patch updates.</returns>
-		public abstract bool UpdateContext();
-
 		/// <summary>Get the current values.</summary>
 		/// <param name="input">The input arguments, if applicable.</param>
 		public abstract IEnumerable<string> GetValues(string input);
+
 	}
 }

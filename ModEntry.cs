@@ -30,7 +30,7 @@ namespace StatsAsTokens
 
 		private void SetUpEventHooks()
 		{
-			Globals.Helper.Events.GameLoop.GameLaunched += (sender, args) =>
+			Globals.Helper.Events.GameLoop.GameLaunched += (_, _) =>
 			{
 				ContentPatcherHelper.TryLoadContentPatcherAPI();
 				ContentPatcherHelper.RegisterSimpleTokens();

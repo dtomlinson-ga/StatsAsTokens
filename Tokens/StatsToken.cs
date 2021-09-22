@@ -115,75 +115,7 @@ namespace StatsAsTokens
 		** State
 		****/
 
-		public override bool UpdateContext()
-		{
-			bool hasChanged = false;
-
-			if (SaveGame.loaded != null || Context.IsWorldReady)
-			{
-				hasChanged = DidStatsChange();
-			}
-
-			return hasChanged;
-		}
-
-		public override IEnumerable<string> GetValues(string input)
-		{
-			List<string> output = new();
-
-			string[] args = input.Split('|');
-
-			string playerType = args[0].Substring(args[0].IndexOf('=') + 1).Trim().ToLower().Replace("player", "").Replace(" ", "");
-			string stat = args[1].Substring(args[1].IndexOf('=') + 1).Trim().ToLower().Replace(" ", "");
-
-			if (playerType.Equals("host"))
-			{
-				bool found = TryGetField(stat, host, out string hostStat);
-
-				if (found)
-				{
-					output.Add(hostStat);
-				}
-			}
-			else if (playerType.Equals("local"))
-			{
-				bool found = TryGetField(stat, loc, out string hostStat);
-
-				if (found)
-				{
-					output.Add(hostStat);
-				}
-			}
-
-			return output;
-		}
-
-		/*********
-		** Private methods
-		*********/
-
-		/// <summary>
-		/// Initializes stat fields for internal stat dictionary. These stats are not fields in the <c>Stats</c> object and so do not show up normally until they have been incremented at least once.
-		/// </summary>
-		/// <param name="stats">The <c>Stats</c> object to initialize the internal stat dictionary of.</param>
-		private void InitializeOtherStatFields(Stats stats)
-		{
-			stats.stat_dictionary = new SerializableDictionary<string, uint>()
-			{
-				["timesEnchanted"] = 0,
-				["beachFarmSpawns"] = 0,
-				["childrenTurnedToDoves"] = 0,
-				["boatRidesToIsland"] = 0,
-				["hardModeMonstersKilled"] = 0,
-				["trashCansChecked"] = 0
-			};
-		}
-
-		/// <summary>
-		/// Checks to see if stats changed. Updates cached values if they are out of date.
-		/// </summary>
-		/// <returns></returns>
-		private bool DidStatsChange()
+		public override bool DidStatsChange()
 		{
 			bool hasChanged = false;
 
@@ -263,6 +195,58 @@ namespace StatsAsTokens
 			}
 
 			return hasChanged;
+		}
+
+		public override IEnumerable<string> GetValues(string input)
+		{
+			List<string> output = new();
+
+			string[] args = input.Split('|');
+
+			string playerType = args[0].Substring(args[0].IndexOf('=') + 1).Trim().ToLower().Replace("player", "").Replace(" ", "");
+			string stat = args[1].Substring(args[1].IndexOf('=') + 1).Trim().ToLower().Replace(" ", "");
+
+			if (playerType.Equals("host"))
+			{
+				bool found = TryGetField(stat, host, out string hostStat);
+
+				if (found)
+				{
+					output.Add(hostStat);
+				}
+			}
+			else if (playerType.Equals("local"))
+			{
+				bool found = TryGetField(stat, loc, out string hostStat);
+
+				if (found)
+				{
+					output.Add(hostStat);
+				}
+			}
+
+			return output;
+		}
+
+		/*********
+		** Private methods
+		*********/
+
+		/// <summary>
+		/// Initializes stat fields for internal stat dictionary. These stats are not fields in the <c>Stats</c> object and so do not show up normally until they have been incremented at least once.
+		/// </summary>
+		/// <param name="stats">The <c>Stats</c> object to initialize the internal stat dictionary of.</param>
+		private void InitializeOtherStatFields(Stats stats)
+		{
+			stats.stat_dictionary = new SerializableDictionary<string, uint>()
+			{
+				["timesEnchanted"] = 0,
+				["beachFarmSpawns"] = 0,
+				["childrenTurnedToDoves"] = 0,
+				["boatRidesToIsland"] = 0,
+				["hardModeMonstersKilled"] = 0,
+				["trashCansChecked"] = 0
+			};
 		}
 
 		/// <summary>
