@@ -28,6 +28,7 @@ namespace StatsAsTokens
 			SetUpEventHooks();
 		}
 
+		/// <summary>Add methods to event hooks.</summary>
 		private void SetUpEventHooks()
 		{
 			Globals.Helper.Events.GameLoop.GameLaunched += (_, _) =>
@@ -38,6 +39,8 @@ namespace StatsAsTokens
 			};
 		}
 
+		/// <summary>Initializes Global variables.</summary>
+		/// <param name="helper" />
 		private void SetUpGlobals(IModHelper helper)
 		{
 			Globals.Helper = helper;
