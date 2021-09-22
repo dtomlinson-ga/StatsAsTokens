@@ -20,12 +20,12 @@ using System.Linq;
 
 namespace StatsAsTokens
 {
-	internal class MonstersKilledToken
+	internal class MonstersKilledToken : BaseToken
 	{
 		/*********
 		** Fields
 		*********/
-		/// <summary>The game stats as of the last context update.</summary>
+		/// <summary>The game stats as of the last context update. No need to cache data since game stores it by monster.</summary>
 		private readonly Dictionary<string, SerializableDictionary<string, int>> monsterStatsDict;
 
 		/*********
@@ -35,8 +35,8 @@ namespace StatsAsTokens
 		{
 			monsterStatsDict = new(StringComparer.OrdinalIgnoreCase)
 			{
-				["hostPlayer"] = InitializeMonstersKilledStats(),
-				["localPlayer"] = InitializeMonstersKilledStats()
+				[host] = InitializeMonstersKilledStats(),
+				[loc] = InitializeMonstersKilledStats()
 			};
 		}
 
@@ -48,33 +48,7 @@ namespace StatsAsTokens
 		** Metadata
 		****/
 
-		/// <summary>Get whether the token allows input arguments (e.g. an NPC name for a relationship token).</summary>
-		public bool AllowsInput()
-		{
-			return true;
-		}
-
-
-		/// <summary>Whether the token requires input arguments to work, and does not provide values without it (see <see cref="AllowsInput"/>).</summary>
-		/// <remarks>Default false.</remarks>
-		public bool RequiresInput()
-		{
-			return true;
-		}
-
-		/// <summary>Whether the token may return multiple values for the given input.</summary>
-		/// <param name="input">The input arguments, if applicable.</param>
-		public bool CanHaveMultipleValues(string input = null)
-		{
-			return false;
-		}
-
-		/// <summary>Validate that the provided input arguments are valid.</summary>
-		/// <param name="input">The input arguments, if any.</param>
-		/// <param name="error">The validation error, if any.</param>
-		/// <returns>Returns whether validation succeeded.</returns>
-		/// <remarks>Default true.</remarks>
-		public bool TryValidateInput(string input, out string error)
+		public override bool TryValidateInput(string input, out string error)
 		{
 			error = "";
 			string[] args = input.ToLower().Trim().Split('|');
@@ -123,7 +97,7 @@ namespace StatsAsTokens
 
 		/// <summary>Update the values when the context changes.</summary>
 		/// <returns>Returns whether the value changed, which may trigger patch updates.</returns>
-		public bool UpdateContext()
+		public override bool UpdateContext()
 		{
 			bool hasChanged = false;
 
@@ -135,15 +109,9 @@ namespace StatsAsTokens
 			return hasChanged;
 		}
 
-		/// <summary>Get whether the token is available for use.</summary>
-		public bool IsReady()
-		{
-			return SaveGame.loaded != null || Context.IsWorldReady;
-		}
-
 		/// <summary>Get the current values.</summary>
 		/// <param name="input">The input arguments, if applicable.</param>
-		public IEnumerable<string> GetValues(string input)
+		public override IEnumerable<string> GetValues(string input)
 		{
 			List<string> output = new();
 
@@ -154,7 +122,7 @@ namespace StatsAsTokens
 
 			if (playerType.Equals("host"))
 			{
-				bool found = TryGetMonsterStat(monster, "hostPlayer", out string monsterNum);
+				bool found = TryGetMonsterStat(monster, host, out string monsterNum);
 
 				if (found)
 				{
@@ -163,7 +131,7 @@ namespace StatsAsTokens
 			}
 			else if (playerType.Equals("local"))
 			{
-				bool found = TryGetMonsterStat(monster, "localPlayer", out string monsterNum);
+				bool found = TryGetMonsterStat(monster, loc, out string monsterNum);
 
 				if (found)
 				{
@@ -177,6 +145,10 @@ namespace StatsAsTokens
 		** Private methods
 		*********/
 
+		/// <summary>
+		/// Initialize and return dictionary with all monsters set to 0 kills. Theoretically supports custom monsters if they are added to Data/Monsters.
+		/// </summary>
+		/// <returns>A dictionary containing all monster names as keys with value 0.</returns>
 		private SerializableDictionary<string, int> InitializeMonstersKilledStats()
 		{
 			SerializableDictionary<string, int> monstersKilled = new();
@@ -198,7 +170,7 @@ namespace StatsAsTokens
 		{
 			bool hasChanged = false;
 
-			string pType = "localPlayer";
+			string pType = loc;
 
 			SerializableDictionary<string, int> monStats = Game1.stats.specificMonstersKilled;
 			SerializableDictionary<string, int> cachedMonStats = monsterStatsDict[pType];
@@ -222,7 +194,7 @@ namespace StatsAsTokens
 				}
 			}
 
-			pType = "hostPlayer";
+			pType = host;
 
 			// check cached master player stats against Game1's master player stats
 			// needs to happen whether player is host or local
@@ -245,17 +217,25 @@ namespace StatsAsTokens
 
 			return hasChanged;
 		}
+
+		/// <summary>
+		/// Attempts to find the number of specified monsters killed for the specified player type, and if located, passes the value out via <c>monsterNum</c>.
+		/// </summary>
+		/// <param name="monsterName">The monster to check kills of.</param>
+		/// <param name="playerType">The player type to check - host or local.</param>
+		/// <param name="monsterNum">The string to pass the value to if located.</param>
+		/// <returns><c>True</c> if located, <c>False</c> otherwise.</returns>
 		private bool TryGetMonsterStat(string monsterName, string playerType, out string monsterNum)
 		{
 			bool found = false;
 			monsterNum = "";
 
-			if (playerType.Equals("localPlayer") && Game1.IsMasterGame)
+			if (playerType.Equals(loc) && Game1.IsMasterGame)
 			{
-				playerType = "hostPlayer";
+				playerType = host;
 			}
 
-			if (playerType.Equals("hostPlayer") || playerType.Equals("localPlayer"))
+			if (playerType.Equals(host) || playerType.Equals(loc))
 			{
 				foreach (string key in monsterStatsDict[playerType].Keys)
 				{

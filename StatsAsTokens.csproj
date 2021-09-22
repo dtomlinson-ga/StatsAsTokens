@@ -55,9 +55,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Tokens\BaseToken.cs" />
     <Compile Include="Tokens\FoodEatenToken.cs" />
     <Compile Include="Tokens\MonstersKilledToken.cs" />
-    <Compile Include="Tokens\StatToken.cs" />
+    <Compile Include="Tokens\StatsToken.cs" />
     <Compile Include="Utilities\ContentPatcherHelper.cs" />
     <Compile Include="Utilities\Globals.cs" />
     <Compile Include="ModEntry.cs" />

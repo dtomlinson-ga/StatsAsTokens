@@ -70,7 +70,7 @@ namespace StatsAsTokens
 
 			FoodEatenPatch();
 
-			api.RegisterToken(Globals.Manifest, "Stats", new StatToken());
+			api.RegisterToken(Globals.Manifest, "Stats", new StatsToken());
 			api.RegisterToken(Globals.Manifest, "MonstersKilled", new MonstersKilledToken());
 			api.RegisterToken(Globals.Manifest, "FoodEaten", new FoodEatenToken());
 		}

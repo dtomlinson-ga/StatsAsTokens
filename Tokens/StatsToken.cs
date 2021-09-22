@@ -21,24 +21,27 @@ using System.Reflection;
 
 namespace StatsAsTokens
 {
-	internal class StatToken
+	internal class StatsToken : BaseToken
 	{
 		/*********
 		** Fields
 		*********/
+
 		/// <summary>The game stats as of the last context update.</summary>
 		private readonly Dictionary<string, Stats> statsDict;
+		/// <summary>Array of public fields in the type StardewValley.Stats.</summary>
 		private readonly FieldInfo[] statFields;
 
 		/*********
 		** Constructor
 		*********/
-		public StatToken()
+
+		public StatsToken()
 		{
 			statsDict = new(StringComparer.OrdinalIgnoreCase)
 			{
-				["hostPlayer"] = new Stats(),
-				["localPlayer"] = new Stats()
+				[host] = new Stats(),
+				[loc] = new Stats()
 			};
 
 			foreach (KeyValuePair<string, Stats> pair in statsDict)
@@ -57,45 +60,7 @@ namespace StatsAsTokens
 		** Metadata
 		****/
 
-		/// <summary>Get whether the token allows input arguments (e.g. an NPC name for a relationship token).</summary>
-		public bool AllowsInput()
-		{
-			return true;
-		}
-
-
-		/// <summary>Whether the token requires input arguments to work, and does not provide values without it (see <see cref="AllowsInput"/>).</summary>
-		/// <remarks>Default false.</remarks>
-		public bool RequiresInput()
-		{
-			return true;
-		}
-
-		/// <summary>Whether the token may return multiple values for the given input.</summary>
-		/// <param name="input">The input arguments, if applicable.</param>
-		public bool CanHaveMultipleValues(string input = null)
-		{
-			return false;
-		}
-
-		/// <summary>Get whether the token always returns a value within a bounded numeric range for the given input. Mutually exclusive with <see cref="HasBoundedValues"/>.</summary>
-		/// <param name="input">The input arguments, if any.</param>
-		/// <param name="min">The minimum value this token may return.</param>
-		/// <param name="max">The maximum value this token may return.</param>
-		/// <remarks>Default false.</remarks>
-		public bool HasBoundedRangeValues(string input, out int min, out int max)
-		{
-			min = 0;
-			max = int.MaxValue;
-			return true;
-		}
-
-		/// <summary>Validate that the provided input arguments are valid.</summary>
-		/// <param name="input">The input arguments, if any.</param>
-		/// <param name="error">The validation error, if any.</param>
-		/// <returns>Returns whether validation succeeded.</returns>
-		/// <remarks>Default true.</remarks>
-		public bool TryValidateInput(string input, out string error)
+		public override bool TryValidateInput(string input, out string error)
 		{
 			error = "";
 			string[] args = input.ToLower().Trim().Split('|');
@@ -150,9 +115,7 @@ namespace StatsAsTokens
 		** State
 		****/
 
-		/// <summary>Update the values when the context changes.</summary>
-		/// <returns>Returns whether the value changed, which may trigger patch updates.</returns>
-		public bool UpdateContext()
+		public override bool UpdateContext()
 		{
 			bool hasChanged = false;
 
@@ -164,15 +127,7 @@ namespace StatsAsTokens
 			return hasChanged;
 		}
 
-		/// <summary>Get whether the token is available for use.</summary>
-		public bool IsReady()
-		{
-			return SaveGame.loaded != null || Context.IsWorldReady;
-		}
-
-		/// <summary>Get the current values.</summary>
-		/// <param name="input">The input arguments, if applicable.</param>
-		public IEnumerable<string> GetValues(string input)
+		public override IEnumerable<string> GetValues(string input)
 		{
 			List<string> output = new();
 
@@ -183,7 +138,7 @@ namespace StatsAsTokens
 
 			if (playerType.Equals("host"))
 			{
-				bool found = TryGetField(stat, "hostPlayer", out string hostStat);
+				bool found = TryGetField(stat, host, out string hostStat);
 
 				if (found)
 				{
@@ -192,7 +147,7 @@ namespace StatsAsTokens
 			}
 			else if (playerType.Equals("local"))
 			{
-				bool found = TryGetField(stat, "localPlayer", out string hostStat);
+				bool found = TryGetField(stat, loc, out string hostStat);
 
 				if (found)
 				{
@@ -207,6 +162,10 @@ namespace StatsAsTokens
 		** Private methods
 		*********/
 
+		/// <summary>
+		/// Initializes stat fields for internal stat dictionary. These stats are not fields in the <c>Stats</c> object and so do not show up normally until they have been incremented at least once.
+		/// </summary>
+		/// <param name="stats">The <c>Stats</c> object to initialize the internal stat dictionary of.</param>
 		private void InitializeOtherStatFields(Stats stats)
 		{
 			stats.stat_dictionary = new SerializableDictionary<string, uint>()
@@ -234,7 +193,7 @@ namespace StatsAsTokens
 			// only needs to happen if player is local and not master
 			if (!Game1.IsMasterGame)
 			{
-				pType = "localPlayer";
+				pType = loc;
 
 				foreach (FieldInfo field in statFields)
 				{
@@ -249,7 +208,7 @@ namespace StatsAsTokens
 					else if (field.FieldType.Equals(typeof(SerializableDictionary<string, uint>)))
 					{
 						SerializableDictionary<string, uint> otherStats = (SerializableDictionary<string, uint>)field.GetValue(Game1.stats);
-						SerializableDictionary<string, uint> cachedOtherStats = statsDict["localPlayer"].stat_dictionary;
+						SerializableDictionary<string, uint> cachedOtherStats = statsDict[loc].stat_dictionary;
 
 						foreach (KeyValuePair<string, uint> pair in otherStats)
 						{
@@ -268,7 +227,7 @@ namespace StatsAsTokens
 				}
 			}
 
-			pType = "hostPlayer";
+			pType = host;
 
 			// check cached master player stats against Game1's master player stats
 			// needs to happen whether player is host or local
@@ -306,14 +265,21 @@ namespace StatsAsTokens
 			return hasChanged;
 		}
 
+		/// <summary>
+		/// Attempts to find the specified stat field for the specified player type, and if located, passes the value out via <c>foundStat</c>.
+		/// </summary>
+		/// <param name="statField">The stat to look for</param>
+		/// <param name="playerType">The player type to check - host or local</param>
+		/// <param name="foundStat">The string to pass the value to if located.</param>
+		/// <returns><c>True</c> if located, <c>False</c> otherwise.</returns>
 		private bool TryGetField(string statField, string playerType, out string foundStat)
 		{
 			bool found = false;
 			foundStat = "";
 
-			if (playerType.Equals("localPlayer") && Game1.IsMasterGame)
+			if (playerType.Equals(loc) && Game1.IsMasterGame)
 			{
-				playerType = "hostPlayer";
+				playerType = host;
 			}
 
 			foreach (FieldInfo field in statFields)

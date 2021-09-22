@@ -21,14 +21,14 @@ using System.Linq;
 
 namespace StatsAsTokens
 {
-	internal class FoodEatenToken
+	internal class FoodEatenToken : BaseToken
 	{
 		/*********
 		** Fields
 		*********/
 		/// <summary>Stores item ID number as Key, number eaten as Value.</summary>
-		private static readonly string host = "hostPlayer", loc = "localPlayer";
 		public static readonly Dictionary<string, SerializableDictionary<string, int>> foodEatenDict, cachedFoodEatenDict;
+		/// <summary>Internal cache of data from ObjectInformation.json. Used to determine which items are considered food and which are not.</summary>
 		public static readonly Dictionary<int, string> objectData;
 
 		/*********
@@ -38,6 +38,9 @@ namespace StatsAsTokens
 		/****
 		** Static Constructor
 		****/
+		/// <summary>
+		/// Constructor needs to be static to initialize static fields properly. The dictionary which stores how much food is eaten has to be static in order to be accessed by the Harmony patch triggered upon eating.
+		/// </summary>
 		static FoodEatenToken()
 		{
 			objectData = Globals.Helper.Content.Load<Dictionary<int, string>>("Data/ObjectInformation", ContentSource.GameContent);
@@ -55,38 +58,11 @@ namespace StatsAsTokens
 			};
 		}
 
-
 		/****
 		** Metadata
 		****/
 
-		/// <summary>Get whether the token allows input arguments (e.g. an NPC name for a relationship token).</summary>
-		public bool AllowsInput()
-		{
-			return true;
-		}
-
-
-		/// <summary>Whether the token requires input arguments to work, and does not provide values without it (see <see cref="AllowsInput"/>).</summary>
-		/// <remarks>Default false.</remarks>
-		public bool RequiresInput()
-		{
-			return true;
-		}
-
-		/// <summary>Whether the token may return multiple values for the given input.</summary>
-		/// <param name="input">The input arguments, if applicable.</param>
-		public bool CanHaveMultipleValues(string input = null)
-		{
-			return false;
-		}
-
-		/// <summary>Validate that the provided input arguments are valid.</summary>
-		/// <param name="input">The input arguments, if any.</param>
-		/// <param name="error">The validation error, if any.</param>
-		/// <returns>Returns whether validation succeeded.</returns>
-		/// <remarks>Default true.</remarks>
-		public bool TryValidateInput(string input, out string error)
+		public override bool TryValidateInput(string input, out string error)
 		{
 			error = "";
 			string[] args = input.ToLower().Trim().Split('|');
@@ -135,7 +111,7 @@ namespace StatsAsTokens
 
 		/// <summary>Update the values when the context changes.</summary>
 		/// <returns>Returns whether the value changed, which may trigger patch updates.</returns>
-		public bool UpdateContext()
+		public override bool UpdateContext()
 		{
 			bool hasChanged = false;
 
@@ -144,20 +120,12 @@ namespace StatsAsTokens
 				hasChanged = DidStatsChange();
 			}
 
-			Globals.Monitor.Log($"Updating FoodEatenToken context - context changed: {hasChanged}");
-
 			return hasChanged;
-		}
-
-		/// <summary>Get whether the token is available for use.</summary>
-		public bool IsReady()
-		{
-			return SaveGame.loaded != null || Context.IsWorldReady;
 		}
 
 		/// <summary>Get the current values.</summary>
 		/// <param name="input">The input arguments, if applicable.</param>
-		public IEnumerable<string> GetValues(string input)
+		public override IEnumerable<string> GetValues(string input)
 		{
 			List<string> output = new();
 
@@ -181,12 +149,15 @@ namespace StatsAsTokens
 		** Private methods
 		*********/
 
+		/// <summary>
+		/// Initializes internal dictionary to 0. Scrapes ObjectInformation to locate all edible items (edibility != -300).
+		/// </summary>
+		/// <returns>A dictionary with all food items as keys, initialized to value 0.</returns>
 		private static SerializableDictionary<string, int> InitializeFoodEatenStats()
 		{
 			SerializableDictionary<string, int> foodEaten = new();
-			Dictionary<int, string> objData = objectData;
 
-			foreach (KeyValuePair<int, string> obj in objData)
+			foreach (KeyValuePair<int, string> obj in objectData)
 			{
 				string[] objDescription = obj.Value.Split('/');
 
@@ -206,7 +177,7 @@ namespace StatsAsTokens
 		/// <summary>
 		/// Checks to see if stats changed. Updates cached values if they are out of date.
 		/// </summary>
-		/// <returns></returns>
+		/// <returns><c>True</c> if stats have changed, <c>False</c> otherwise.</returns>
 		private bool DidStatsChange()
 		{
 			bool hasChanged = false;
@@ -259,6 +230,13 @@ namespace StatsAsTokens
 			return hasChanged;
 		}
 
+		/// <summary>
+		/// Attempts to find the number of the specified food eaten for the specified player type, and if located, passes the value out via <c>foodEatenNum</c>.
+		/// </summary>
+		/// <param name="foodNameOrId"></param>
+		/// <param name="playerType"></param>
+		/// <param name="foodEatenNum"></param>
+		/// <returns></returns>
 		private bool TryGetFoodEaten(string foodNameOrId, string playerType, out string foodEatenNum)
 		{
 			string pType = playerType;
@@ -279,8 +257,7 @@ namespace StatsAsTokens
 					// logging
 					Globals.Monitor.Log($"Parsed 'food' value {foodNameOrId} to {fuzzyName}");
 
-					Dictionary<int, string> objData = objectData;
-					foreach (KeyValuePair<int, string> pair in objData)
+					foreach (KeyValuePair<int, string> pair in objectData)
 					{
 						if (pair.Value.Split('/')[0].Replace(" ", "").ToLower().Equals(fuzzyName))
 						{
