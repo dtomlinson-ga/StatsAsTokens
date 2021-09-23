@@ -179,12 +179,38 @@ What does this mean?
 Well, if a player hasn't yet eaten a DGA item, if you try to get the number eaten it will be returned as "" instead of 0. This will break the Query expression.
 In practice, this will have the same effect as if the conditions were false, but it may have unintended effects. If DGA's API gets expanded I will revisit this issue and try to resolve it in a satisfactory manner.
 
+### **`Vertigon.StatsAsTokens/TreesFelled`**
+
+This token takes exactly two named arguments (both must be provided in order for it to work):
+* **`player`**: Must be one of the following:
+  * `host`: The player hosting the lobby, or
+  * `local`: The player on the local splitscreen or computer, if not the host
+* **`type`**: The type of tree to check. You can provide either the tree name, or the internal tree type number. See below for a complete list. You can also provide the keyword `any` to get the total number of trees felled by the selected player.
+
+The arguments are case-insensitive and space-insensitive.
+
+For example:
+`{{Vertigon.StatsAsTokens/TreesFelled:player=local|type=1}}` will be parsed as the number of trees of type 1 (oak trees) felled by the local player.  
+`{{Vertigon.StatsAsTokens/TreesFelled:player=host|type=maple}}` will be parsed as the number of maple trees (type 2) felled by the host.  
+`{{Vertigon.StatsAsTokens/TreesFelled:player=local|type=any}}` will be parsed as the total number of trees felled by the local player.  
+
+Here is a complete list of tree types/names currently usable as arguments:
+
+* `oak` (`1`)
+* `maple` (`2`)
+* `pine` (`3`)
+* `palm` (`6`) *
+* `mushroom` (`7`)
+* `mahogany` (`8`)
+* `palm2` (`9`) *
+\* For simplicity's sake, `palm` and `palm2` are condensed into one stored value under the hood. Inputting either as the type will give you the total number of palms felled.
 
 ### Upcoming Features
  * Track more custom stats! Message me on Discord (Vertigon#1851) if you have ideas for custom stats to track
-	* Number of trees cut down (all / by type)
 	* Number of items gifted by type - game already tracks total number
  * Track animals owned by players
+ * Track spouse anniversaries/days married
+ * Track children birthdays/days alive
 
 #### If you have any issues:
 Make sure SMAPI is up-to-date.
