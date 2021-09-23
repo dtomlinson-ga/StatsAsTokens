@@ -13,9 +13,7 @@
 // along with this program.  If not, see https://www.gnu.org/licenses/.
 
 using ContentPatcher;
-using HarmonyLib;
 using StardewModdingAPI;
-using StardewValley;
 using System;
 
 namespace StatsAsTokens
@@ -68,38 +66,23 @@ namespace StatsAsTokens
 				return;
 			}
 
-			FoodEatenPatch();
-
 			api.RegisterToken(Globals.Manifest, "Stats", new StatsToken());
 			api.RegisterToken(Globals.Manifest, "MonstersKilled", new MonstersKilledToken());
 			api.RegisterToken(Globals.Manifest, "FoodEaten", new FoodEatenToken());
+			api.RegisterToken(Globals.Manifest, "TreesFelled", new TreesFelledToken());
 		}
 
-		public static void FoodEatenPatch()
+		public static void SaveValues()
 		{
-			try
-			{
-				Harmony harmony = new(Globals.Manifest.UniqueID);
-				harmony.Patch(
-					original: typeof(Farmer).GetMethod("eatObject"),
-					prefix: new HarmonyMethod(typeof(ContentPatcherHelper), nameof(eatObject_Prefix))
-				);
-
-				Globals.Monitor.Log("Patched eatObject() successfully");
-			}
-			catch (Exception ex)
-			{
-				Globals.Monitor.Log($"Exception encountered while patching method {nameof(eatObject_Prefix)}: {ex}");
-			}
+			Globals.Helper.Data.WriteSaveData("foodEaten", FoodEatenToken.foodEatenDict);
+			Globals.Helper.Data.WriteSaveData("treesFelled", TreesFelledToken.treesFelledDict);
 		}
 
-		[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Harmony patch - match original method naming convention")]
-		public static void eatObject_Prefix(Farmer __instance, StardewValley.Object o)
+		public static void RestoreValues()
 		{
-			string foodID = o.parentSheetIndex.ToString();
-
-			string pType = __instance.IsMainPlayer ? "hostPlayer" : "localPlayer";
-			FoodEatenToken.foodEatenDict[pType][foodID] = FoodEatenToken.foodEatenDict[pType].ContainsKey(foodID) ? FoodEatenToken.foodEatenDict[pType][foodID] + 1 : 1;
+			FoodEatenToken.foodEatenDict = Globals.Helper.Data.ReadSaveData<FoodEatenToken.FoodEatenData>("foodEaten") ?? new FoodEatenToken.FoodEatenData();
+			TreesFelledToken.treesFelledDict = Globals.Helper.Data.ReadSaveData<TreesFelledToken.TreesFelledData>("treesFelled") ?? new TreesFelledToken.TreesFelledData();
 		}
+
 	}
 }

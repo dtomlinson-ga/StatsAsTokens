@@ -14,18 +14,14 @@
 
 using StardewModdingAPI;
 using StardewValley;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StatsAsTokens
 {
 	/// <summary>
 	/// Base class which all Tokens extend - handles basic token functionality. Tokens must implement their own parsing of input and returning of values.
 	/// </summary>
-	abstract class BaseToken
+	internal abstract class BaseToken
 	{
 		internal static readonly string host = "hostPlayer", loc = "localPlayer";
 
@@ -99,7 +95,7 @@ namespace StatsAsTokens
 		/// Checks to see if stats changed. Updates cached values if they are out of date.
 		/// </summary>
 		/// <returns><c>True</c> if stats changed, <c>False</c> otherwise.</returns>
-		public abstract bool DidStatsChange();
+		protected abstract bool DidStatsChange();
 
 		/// <summary>Get whether the token is available for use.</summary>
 		public bool IsReady()

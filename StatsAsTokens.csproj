@@ -59,10 +59,12 @@
     <Compile Include="Tokens\FoodEatenToken.cs" />
     <Compile Include="Tokens\MonstersKilledToken.cs" />
     <Compile Include="Tokens\StatsToken.cs" />
+    <Compile Include="Tokens\TreesFelledToken.cs" />
     <Compile Include="Utilities\ContentPatcherHelper.cs" />
     <Compile Include="Utilities\Globals.cs" />
     <Compile Include="ModEntry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities\HarmonyPatches.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="docs\LICENSE" />

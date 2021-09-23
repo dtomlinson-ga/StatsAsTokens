@@ -115,7 +115,7 @@ namespace StatsAsTokens
 		** State
 		****/
 
-		public override bool DidStatsChange()
+		protected override bool DidStatsChange()
 		{
 			bool hasChanged = false;
 

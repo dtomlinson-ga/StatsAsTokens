@@ -37,6 +37,16 @@ namespace StatsAsTokens
 				ContentPatcherHelper.RegisterSimpleTokens();
 				ContentPatcherHelper.RegisterAdvancedTokens();
 			};
+
+			Globals.Helper.Events.GameLoop.SaveLoaded += (_, _) =>
+			{
+				ContentPatcherHelper.RestoreValues();
+			};
+
+			Globals.Helper.Events.GameLoop.DayEnding += (_, _) =>
+			{
+				ContentPatcherHelper.SaveValues();
+			};
 		}
 
 		/// <summary>Initializes Global variables.</summary>

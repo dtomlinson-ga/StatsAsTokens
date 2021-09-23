@@ -12,7 +12,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see https://www.gnu.org/licenses/.
 
-using HarmonyLib;
 using StardewModdingAPI;
 using StardewValley;
 using System;
@@ -27,7 +26,7 @@ namespace StatsAsTokens
 		** Fields
 		*********/
 		/// <summary>Stores item ID number as Key, number eaten as Value.</summary>
-		public static readonly Dictionary<string, SerializableDictionary<string, int>> foodEatenDict, cachedFoodEatenDict;
+		public static FoodEatenData foodEatenDict, cachedFoodEatenDict;
 		/// <summary>Internal cache of data from ObjectInformation.json. Used to determine which items are considered food and which are not.</summary>
 		public static readonly Dictionary<int, string> objectData;
 
@@ -38,6 +37,7 @@ namespace StatsAsTokens
 		/****
 		** Static Constructor
 		****/
+
 		/// <summary>
 		/// Constructor needs to be static to initialize static fields properly. The dictionary which stores how much food is eaten has to be static in order to be accessed by the Harmony patch triggered upon eating.
 		/// </summary>
@@ -45,17 +45,10 @@ namespace StatsAsTokens
 		{
 			objectData = Globals.Helper.Content.Load<Dictionary<int, string>>("Data/ObjectInformation", ContentSource.GameContent);
 
-			foodEatenDict = new(StringComparer.OrdinalIgnoreCase)
-			{
-				[host] = InitializeFoodEatenStats(),
-				[loc] = InitializeFoodEatenStats()
-			};
+			foodEatenDict = new();
+			cachedFoodEatenDict = new();
 
-			cachedFoodEatenDict = new(StringComparer.OrdinalIgnoreCase)
-			{
-				[host] = InitializeFoodEatenStats(),
-				[loc] = InitializeFoodEatenStats()
-			};
+			HarmonyPatches.FoodEatenPatch();
 		}
 
 		/****
@@ -109,14 +102,14 @@ namespace StatsAsTokens
 		** State
 		****/
 
-		public override bool DidStatsChange()
+		protected override bool DidStatsChange()
 		{
 			bool hasChanged = false;
 
 			string pType = loc;
 
-			SerializableDictionary<string, int> foodEaten = foodEatenDict[pType];
-			SerializableDictionary<string, int> cachedFoodEaten = cachedFoodEatenDict[pType];
+			Dictionary<string, int> foodEaten = foodEatenDict.Value[pType];
+			Dictionary<string, int> cachedFoodEaten = cachedFoodEatenDict.Value[pType];
 
 			// check cached local player stats against Game1's local player stats
 			// only needs to happen if player is local
@@ -141,8 +134,8 @@ namespace StatsAsTokens
 
 			// check cached master player stats against Game1's master player stats
 			// needs to happen whether player is host or local
-			foodEaten = foodEatenDict[pType];
-			cachedFoodEaten = cachedFoodEatenDict[pType];
+			foodEaten = foodEatenDict.Value[pType];
+			cachedFoodEaten = cachedFoodEatenDict.Value[pType];
 
 			foreach (KeyValuePair<string, int> pair in foodEaten)
 			{
@@ -175,9 +168,9 @@ namespace StatsAsTokens
 
 			string pType = playerType.Equals("host") ? host : loc;
 
-			if (TryGetFoodEaten(food, pType, out string monsterNum))
+			if (TryGetFoodEaten(food, pType, out string foodEatenNum))
 			{
-				output.Add(monsterNum);
+				output.Add(foodEatenNum);
 			}
 
 			return output;
@@ -264,22 +257,43 @@ namespace StatsAsTokens
 				if (foodNameOrId.Equals("any"))
 				{
 					found = true;
-					foodEatenNum = cachedFoodEatenDict[pType].Values.Sum().ToString();
+					foodEatenNum = cachedFoodEatenDict.Value[pType].Values.Sum().ToString();
 				}
 				else
 				{
-					foreach (string key in cachedFoodEatenDict[pType].Keys)
+					foreach (string key in cachedFoodEatenDict.Value[pType].Keys)
 					{
 						if (key.Equals(foodId))
 						{
 							found = true;
-							foodEatenNum = cachedFoodEatenDict[pType][key].ToString();
+							foodEatenNum = cachedFoodEatenDict.Value[pType][key].ToString();
 						}
 					}
 				}
 			}
 
 			return found;
+		}
+
+		/*********
+		** Subclass
+		*********/
+
+		/// <summary>
+		/// Required in order to read/write data to save file properly. Just stores the host and local dicts (food = key, number eaten = value).
+		/// </summary>
+		public class FoodEatenData
+		{
+			public Dictionary<string, Dictionary<string, int>> Value;
+
+			public FoodEatenData()
+			{
+				Value = new(StringComparer.OrdinalIgnoreCase)
+				{
+					[host] = InitializeFoodEatenStats(),
+					[loc] = InitializeFoodEatenStats()
+				};
+			}
 		}
 
 	}
