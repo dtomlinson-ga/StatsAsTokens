@@ -11,7 +11,7 @@ on various player milestones including number of seeds sown, truffles found, pal
 Download this mod, place it in your Mods folder, and list it as a dependency in your `manifest.json` in order to access its custom tokens.
 
 ### Dependencies
-* [SMAPI](https://smapi.io/)  v3.12.0 or higher is a required dependency.
+* [SMAPI](https://smapi.io/)  v3.9.5 or higher is a required dependency.
 * [Content Patcher](https://www.nexusmods.com/stardewvalley/mods/1915) v1.23.0 or higher is a required dependency.
 
 ## Custom Tokens Provided
