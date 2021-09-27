@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+﻿using Harmony;
 using StardewValley;
 using StardewValley.TerrainFeatures;
 using System;
@@ -16,7 +16,7 @@ namespace StatsAsTokens
 		{
 			try
 			{
-				Harmony harmony = new(Globals.Manifest.UniqueID);
+				HarmonyInstance harmony = HarmonyInstance.Create(Globals.Manifest.UniqueID);
 				harmony.Patch(
 					original: typeof(Farmer).GetMethod("eatObject"),
 					prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(eatObject_Prefix))
