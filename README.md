@@ -1,16 +1,17 @@
-### Stats As Tokens
+
+## Stats As Tokens
 *by Vertigon*
 
 [NexusMods Page](https://www.nexusmods.com/stardewvalley/mods/9659)
 
 This mod allows Content Patcher pack creators to access all stats tracked by the game through custom CP tokens, allowing for patches to trigger
-on various player milestones including number of seeds sown, truffles found, trash cans checked and many more! See below for a complete list.
+on various player milestones including number of seeds sown, truffles found, palm trees cut down, trash cans checked and many more! See below for a complete list.
 
 ### Usage
 Download this mod, place it in your Mods folder, and list it as a dependency in your `manifest.json` in order to access its custom tokens.
 
 ### Dependencies
-* [SMAPI](https://smapi.io/)  v3.12.0 or higher is a required dependency.
+* [SMAPI](https://smapi.io/)  v3.9.5 or higher is a required dependency.
 * [Content Patcher](https://www.nexusmods.com/stardewvalley/mods/1915) v1.23.0 or higher is a required dependency.
 
 ## Custom Tokens Provided
@@ -173,11 +174,9 @@ For example:
 `{{Vertigon.StatsAsTokens/FoodEaten:player=host|food=leek}}` will be parsed as the number of Leeks eaten by the host.  
 `{{Vertigon.StatsAsTokens/FoodEaten:player=local|food=any}}` will be parsed as the total number of food items the local player has eaten.  
 
-Note that this *should* support JA/DGA items. However, without a hard DGA dependency I can't initialize DGA items in the internal list (JA items should be okay).
-
-What does this mean?  
-Well, if a player hasn't yet eaten a DGA item, if you try to get the number eaten it will be returned as "" instead of 0. This will break the Query expression.
-In practice, this will have the same effect as if the conditions were false, but it may have unintended effects. If DGA's API gets expanded I will revisit this issue and try to resolve it in a satisfactory manner.
+#### Note that this *should* support JA/DGA items. However, without a hard DGA dependency I can't initialize DGA items in the internal list (JA items should be okay). What does this mean?  
+Well, if a player hasn't yet eaten a DGA item, if you try to get the number eaten it will be returned as "" instead of 0. This will break the enclosing Query expression.
+In practice, this *should* have the same effect as if the conditions were false, but it may have unintended effects. If DGA's API gets expanded I will revisit this issue and try to resolve it in a satisfactory manner.
 
 ### **`Vertigon.StatsAsTokens/TreesFelled`**
 
@@ -205,6 +204,22 @@ Here is a complete list of tree types/names currently usable as arguments:
 * `palm2` (`9`) *
 \* For simplicity's sake, `palm` and `palm2` are condensed into one stored value under the hood. Inputting either as the type will give you the total number of palms felled.
 
+## Utilizing Tokens Effectively
+While the tokens provided allow for a wide range of new options, for maximum effect you will need to pair them with several core features provided by Content Patcher.
+
+Firstly, I highly recommend familiarizing yourself with the Content Patcher documentation. The [tokens guide](https://github.com/Pathoschild/StardewMods/blob/develop/ContentPatcher/docs/author-tokens-guide.md) in particular will come in handy as the global tokens provided are extremely powerful, especially in conjunction with those provided by this mod.
+
+As the majority of tokens provided by Stats As Tokens are numerical in nature, [number manipulation](https://github.com/Pathoschild/StardewMods/blob/develop/ContentPatcher/docs/author-tokens-guide.md#number-manipulation) tokens will allow you a greater range of expression, especially once more of the planned features have been implemented.
+
+**[Query Expressions](https://github.com/Pathoschild/StardewMods/blob/develop/ContentPatcher/docs/author-tokens-guide.md#query-expressions)** allow you to evaluate mathematical and logical expressions within a When condition or inside a field or token. Here is an example which checks to see if the player has consumed 5 or more Joja Colas in order to determine whether or not to apply a patch:
+
+    "When": {
+	    "Query: {{Vertigon.StatsAsTokens/FoodEaten:player=host|food=joja}} >= 5": true
+    }
+Note that the `food` argument attempts to match the item name using 'fuzzy string matching', as demonstrated here - it will match `joja` to `Joja Cola` automatically. However, to avoid unforeseen issues (i.e. what happens when somebody adds a `Joja Apple`?), it is best to fully write out the item name.
+
+**Query expressions, while powerful, are also unpredictable** - they are not fully validated ahead of time, and may just fail without warning if improperly formatted. Test your expressions thoroughly with the `patch parse` command.
+
 ### Upcoming Features
  * Track more custom stats! Message me on Discord (Vertigon#1851) if you have ideas for custom stats to track
 	* Number of items gifted by type - game already tracks total number
@@ -213,7 +228,6 @@ Here is a complete list of tree types/names currently usable as arguments:
  * Track children birthdays/days alive
 
 #### If you have any issues:
-Make sure SMAPI is up-to-date.
+Make sure SMAPI and Content Patcher are up-to-date.
 You can reach me on the Stardew Valley discord (Vertigon#1851) or on the Nexus mod page.
-Please provide a SMAPI log, as well as your manifest.json, so that I can assist you better.
-
+Please provide a SMAPI log, as well as your manifest.json and content.json, so that I can assist you better.
