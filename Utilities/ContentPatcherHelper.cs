@@ -66,11 +66,17 @@ namespace StatsAsTokens
 				return;
 			}
 
-			api.RegisterToken(Globals.Manifest, "Stats", new StatsToken());
-			api.RegisterToken(Globals.Manifest, "MonstersKilled", new MonstersKilledToken());
-			api.RegisterToken(Globals.Manifest, "FoodEaten", new FoodEatenToken());
-			api.RegisterToken(Globals.Manifest, "TreesFelled", new TreesFelledToken());
+			RegisterToken("Stats", new StatsToken());
+			RegisterToken("MonstersKilled", new MonstersKilledToken());
+			RegisterToken("FoodEaten", new FoodEatenToken());
+			RegisterToken("TreesFelled", new TreesFelledToken());
 		}
+
+		public static void RegisterToken(string name, object token)
+		{
+			api.RegisterToken(Globals.Manifest, name, token);
+		}
+
 
 		public static void SaveValues()
 		{
