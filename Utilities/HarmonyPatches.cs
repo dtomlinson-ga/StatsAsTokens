@@ -63,7 +63,7 @@ namespace StatsAsTokens
 		{
 			try
 			{
-				Harmony harmony = new(Globals.Manifest.UniqueID);
+				HarmonyInstance harmony = HarmonyInstance.Create(Globals.Manifest.UniqueID);
 				harmony.Patch(
 					original: AccessTools.Method(typeof(Tree), "performTreeFall"),
 					prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(performTreeFall_Prefix))
