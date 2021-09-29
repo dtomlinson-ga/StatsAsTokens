@@ -154,7 +154,7 @@ Here is a complete list of monsters currently usable as arguments:
 * `Shadow Sniper`
 * `Spider`
 * `Royal Serpent`
-* `Blue Squid`
+* `Blue Squid`  
 \* not actually monsters, but stored in Data/Monsters. Probably will never be anything other than 0. 
 
 Theoretically this token supports custom monster types as well, so long as they provide the game with a proper Name variable when instantiated.
