@@ -1,4 +1,6 @@
 ﻿using Harmony;
+using Microsoft.Xna.Framework;
+using StardewModdingAPI;
 using StardewValley;
 using StardewValley.TerrainFeatures;
 using System;
@@ -12,12 +14,12 @@ namespace StatsAsTokens
 		** FoodEatenToken patch
 		*********/
 
-		static Harmony harmony;
+		static HarmonyInstance harmony;
 		const string HarmonyJustification = "Harmony patch - match original method naming convention";
 
 		public static void PerformHarmonyPatches()
 		{
-			harmony = new(Globals.Manifest.UniqueID);
+			harmony = HarmonyInstance.Create(Globals.Manifest.UniqueID);
 			FoodEatenPatch();
 			TreesFelledPatch();
 			BarsSmeltedPatch();
