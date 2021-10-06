@@ -57,8 +57,6 @@ namespace StatsAsTokens
 				["8"] = "mahogany",
 				//[9] = "palm2"
 			};
-
-			HarmonyPatches.TreeFelledPatch();
 		}
 
 		/****

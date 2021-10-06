@@ -47,8 +47,6 @@ namespace StatsAsTokens
 
 			foodEatenDict = new();
 			cachedFoodEatenDict = new();
-
-			HarmonyPatches.FoodEatenPatch();
 		}
 
 		/****

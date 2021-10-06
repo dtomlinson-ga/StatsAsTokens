@@ -272,6 +272,12 @@ namespace StatsAsTokens
 				{
 					found = true;
 					foundStat = field.GetValue(statsDict[playerType]).ToString();
+
+					#if DEBUG
+					Globals.Monitor.Log($"Matched {statField} to {field.Name}");
+					Globals.Monitor.Log($"Expected value: {field.GetValue(Game1.stats)}");
+					Globals.Monitor.Log($"Actual value: {foundStat}");
+					#endif
 				}
 			}
 
@@ -283,6 +289,12 @@ namespace StatsAsTokens
 					{
 						found = true;
 						foundStat = statsDict[playerType].stat_dictionary[key].ToString();
+
+						#if DEBUG
+						Globals.Monitor.Log($"Matched {statField} to {key}");
+						Globals.Monitor.Log($"Expected value: {Game1.stats.stat_dictionary[key]}");
+						Globals.Monitor.Log($"Actual value: {foundStat}");
+						#endif
 					}
 				}
 			}

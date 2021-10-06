@@ -60,6 +60,7 @@
     <Compile Include="Tokens\MonstersKilledToken.cs" />
     <Compile Include="Tokens\StatsToken.cs" />
     <Compile Include="Tokens\TreesFelledToken.cs" />
+    <Compile Include="Tokens\AnimalsOwnedToken.cs" />
     <Compile Include="Utilities\ContentPatcherHelper.cs" />
     <Compile Include="Utilities\Globals.cs" />
     <Compile Include="ModEntry.cs" />
