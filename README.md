@@ -277,11 +277,11 @@ Here is a slightly trickier condition which combines number manipulation with a 
 ### Upcoming Features
  * Track more custom stats! Message me on Discord (Vertigon#1851) if you have ideas for custom stats to track
 	* Number of items gifted by type - game already tracks total number
- * Track animals owned by players
  * Track spouse anniversaries/days married
  * Track children birthdays/days alive
 
 #### If you have any issues:
-Make sure SMAPI and Content Patcher are up-to-date.
-You can reach me on the Stardew Valley discord (Vertigon#1851) or on the Nexus mod page.
-Please provide a SMAPI log, as well as your manifest.json and content.json, so that I can assist you better.
+* Read the documentation carefully. I have tried to be as thorough as possible.
+* Make sure SMAPI and Content Patcher are up-to-date.
+* You can reach me on the Stardew Valley discord (Vertigon#1851) or on the Nexus mod page.
+* Please provide a SMAPI log, as well as your manifest.json and content.json, so that I can assist you better.
