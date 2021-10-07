@@ -16,7 +16,6 @@ Dependencies:
   * Content Patcher: https://www.nexusmods.com/stardewvalley/mods/1915 (v1.23.0 or higher is a required dependency)
 
 Documentation:
-
   See the readme on GitHub for up-to-date documentation on all features of this mod.
 
 If you have any issues:
