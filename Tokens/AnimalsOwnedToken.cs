@@ -46,8 +46,8 @@ namespace StatsAsTokens
 		public override bool TryValidateInput(string input, out string error)
 		{
 			error = "";
-			string[] args = input.ToLower().Trim().Split('|');
-			string validArgsText = @"'[White/Brown/Blue/Void/Golden] Chicken', 'Duck', 'Rabbit', 'Dinosaur', '[White/Brown] Cow', 'Goat', 'Pig', 'Hog', 'Sheep', 'Ostrich', 'Horse', 'Any', 'Barn', 'Coop'";
+			string[] args = input.ToLower().Replace(" ", "").Split('|');
+			string validArgsText = @"'[White/Brown/Blue/Void/Golden] Chicken', 'Duck', 'Rabbit', 'Dinosaur', '[White/Brown] Cow', 'Goat', 'Pig', 'Hog', 'Sheep', 'Ostrich', 'Horse', 'Any', 'Barn', 'Coop' (or matching the name of a custom animal, such as one added by BFAV)";
 
 			if (args.Count() == 1)
 			{
