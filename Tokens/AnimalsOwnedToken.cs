@@ -29,6 +29,7 @@ namespace StatsAsTokens
 		public static Dictionary<Guid, SDate> horseAges;
 		public static List<string> validArgs;
 		public string field = "";
+		public string outputSeparator = null;
 
 		public AnimalsOwnedToken(string field)
 		{
@@ -46,10 +47,10 @@ namespace StatsAsTokens
 		public override bool TryValidateInput(string input, out string error)
 		{
 			error = "";
-			string[] args = input.ToLower().Replace(" ", "").Split('|');
+			string[] args = input.ToLower().Split('|');
 			string validArgsText = @"'[White/Brown/Blue/Void/Golden] Chicken', 'Duck', 'Rabbit', 'Dinosaur', '[White/Brown] Cow', 'Goat', 'Pig', 'Hog', 'Sheep', 'Ostrich', 'Horse', 'Any', 'Barn', 'Coop' (or matching the name of a custom animal, such as one added by BFAV)";
 
-			if (args.Count() == 1)
+			if (args.Count() > 0)
 			{
 				if (!args[0].Contains("type="))
 				{
@@ -62,7 +63,7 @@ namespace StatsAsTokens
 				else
 				{
 					// accept hostplayer or host, localplayer or local
-					string animalType = args[0].Substring(args[0].IndexOf('=') + 1).Trim();
+					string animalType = args[0].Substring(args[0].IndexOf('=') + 1).Replace(" ", "");
 
 					bool matched = false;
 
@@ -86,13 +87,30 @@ namespace StatsAsTokens
 						error += $"Named argument 'type' must be one of the following values: {validArgsText}. ";
 					}
 				}
+
+				if (args.Count() == 2)
+				{
+					if (!args[1].Contains("separator="))
+					{
+						error += $"Second argument must be 'separator' and consist of a string to use as a separator";
+					}
+					else if (args[1].IndexOf('=') == args[1].Length - 1)
+					{
+						error += $"If 'separator' argument is provided, it must be provided an argument consisting of an alphanumeric string. ";
+					}
+				}
 			}
 			else
 			{
-				error += $"Wrong number of arguments provided. A 'type' argument (one of the following values: {validArgsText}) must be provided. ";
+				error += $"Wrong number of arguments provided. A 'type' argument (one of the following values: {validArgsText}) must be provided, and optionally a 'separator' argument consisting of an alphanumeric string to separate return values. ";
 			}
 
 			return error.Equals("");
+		}
+
+		public override bool IsReady()
+		{
+			return Context.IsWorldReady;
 		}
 
 		protected override bool DidStatsChange()
@@ -159,33 +177,41 @@ namespace StatsAsTokens
 			List<string> output = new();
 
 			// sanitize inputs
-			string arg = input.Substring(input.IndexOf('=') + 1).Trim().ToLower().Replace(" ", "");
+			string[] args = input.Split('|');
+			string inputAnimal = args[0].Substring(args[0].IndexOf('=') + 1).Trim().ToLower().Replace(" ", "");
 
 			foreach (Character animal in cachedAnimals)
 			{
-				if (arg is "barn" or "coop")
+				if (inputAnimal is "barn" or "coop")
 				{
 					if (animal is FarmAnimal farmAnimal)
 					{
-						if (farmAnimal.buildingTypeILiveIn.Value.ToLower().Contains(arg))
+						if (farmAnimal.buildingTypeILiveIn.Value.ToLower().Contains(inputAnimal))
 						{
 							#if DEBUG
-							Globals.Monitor.Log($"Matched '{arg}' to {AnimalType(farmAnimal)} {AnimalName(farmAnimal)} [{AnimalId(farmAnimal)}] which is age {AnimalAge(farmAnimal)}.");
+							Globals.Monitor.Log($"Matched '{inputAnimal}' to {AnimalType(farmAnimal)} {AnimalName(farmAnimal)} [{AnimalId(farmAnimal)}] which is age {AnimalAge(farmAnimal)}.");
 							#endif
 
 							output.Add(GetReturnValue(animal, field));
 						}
 					}
 				}
-				else if (AnimalType(animal).ToLower().Replace(" ", "").Contains(arg) || arg is "any")
+				else if (AnimalType(animal).ToLower().Replace(" ", "").Contains(inputAnimal) || inputAnimal is "any")
 				{
 
 					#if DEBUG
-					Globals.Monitor.Log($"Matched '{arg}' to {AnimalType(animal)} {AnimalName(animal)} [{AnimalId(animal)}] which is age {AnimalAge(animal)}.");
+					Globals.Monitor.Log($"Matched '{inputAnimal}' to {AnimalType(animal)} {AnimalName(animal)} [{AnimalId(animal)}] which is age {AnimalAge(animal)}.");
 					#endif
 
 					output.Add(GetReturnValue(animal, field));
 				}
+			}
+
+			if (args.Count() == 2)
+			{
+				string sep = args[1].Substring(args[1].IndexOf('=') + 1);
+
+				output = new() { string.Join(sep, output) };
 			}
 
 			return output;
