@@ -2,7 +2,7 @@
 ## Stats As Tokens
 *by Vertigon*
 
-[NexusMods](https://www.nexusmods.com/stardewvalley/mods/9659)
+[NexusMods](https://www.nexusmods.com/stardewvalley/mods/9659)  
 [GitHub](https://github.com/dtomlinson-ga/StatsAsTokens)
 
 This mod allows Content Patcher pack creators to access all stats tracked by the game through custom CP tokens, allowing for patches to trigger
