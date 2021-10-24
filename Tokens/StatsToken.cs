@@ -12,9 +12,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see https://www.gnu.org/licenses/.
 
-using StardewModdingAPI;
 using StardewValley;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -28,9 +26,11 @@ namespace StatsAsTokens
 		*********/
 
 		/// <summary>The game stats as of the last context update.</summary>
-		private readonly Dictionary<string, Stats> statsDict;
+		private readonly Dictionary<string, Stats> statsDict = new();
 		/// <summary>Array of public fields in the type StardewValley.Stats.</summary>
 		private readonly FieldInfo[] statFields;
+
+		private bool statsInitialized = false;
 
 		/*********
 		** Constructor
@@ -38,17 +38,6 @@ namespace StatsAsTokens
 
 		public StatsToken()
 		{
-			statsDict = new(StringComparer.OrdinalIgnoreCase)
-			{
-				[host] = new Stats(),
-				[loc] = new Stats()
-			};
-
-			foreach (KeyValuePair<string, Stats> pair in statsDict)
-			{
-				InitializeOtherStatFields(pair.Value);
-			}
-
 			statFields = typeof(Stats).GetFields();
 		}
 
@@ -120,6 +109,22 @@ namespace StatsAsTokens
 			bool hasChanged = false;
 
 			string pType;
+
+			// on the very first context update, need to initialize statsDict and any non-initialized stats
+			if (!statsInitialized)
+			{
+				Game1.player.stats = InitializeOtherStatFields(Game1.player.stats);
+
+				if (Game1.IsMasterGame)
+				{
+					statsDict[host] = Game1.player.stats;
+				}
+				else
+				{
+					statsDict[loc] = Game1.player.stats;
+				}
+				statsInitialized = true;
+			}
 
 			// check cached local player stats against Game1's local player stats
 			// only needs to happen if player is local and not master
@@ -236,17 +241,35 @@ namespace StatsAsTokens
 		/// Initializes stat fields for internal stat dictionary. These stats are not fields in the <c>Stats</c> object and so do not show up normally until they have been incremented at least once.
 		/// </summary>
 		/// <param name="stats">The <c>Stats</c> object to initialize the internal stat dictionary of.</param>
-		private void InitializeOtherStatFields(Stats stats)
+		private Stats InitializeOtherStatFields(Stats stats)
 		{
-			stats.stat_dictionary = new SerializableDictionary<string, uint>()
+			List<string> otherStats = new()
 			{
-				["timesEnchanted"] = 0,
-				["beachFarmSpawns"] = 0,
-				["childrenTurnedToDoves"] = 0,
-				["boatRidesToIsland"] = 0,
-				["hardModeMonstersKilled"] = 0,
-				["trashCansChecked"] = 0
+				"timesEnchanted",
+				"beachFarmSpawns",
+				"childrenTurnedToDoves",
+				"boatRidesToIsland",
+				"hardModeMonstersKilled",
+				"trashCansChecked",
+				"ostrichEggsLayed",
+				"dinosaurEggsLayed",
+				"rabbitsFeetDropped",
+				"duckFeathersDropped",
+				"mayonnaiseMade",
+				"duckMayonnaiseMade",
+				"voidMayonnaiseMade",
+				"dinosaurMayonnaiseMade",
 			};
+
+			foreach (string stat in otherStats)
+			{
+				if (!stats.stat_dictionary.ContainsKey(stat))
+				{
+					stats.stat_dictionary[stat] = 0;
+				}
+			}
+
+			return stats;
 		}
 
 		/// <summary>
@@ -273,11 +296,11 @@ namespace StatsAsTokens
 					found = true;
 					foundStat = field.GetValue(statsDict[playerType]).ToString();
 
-					#if DEBUG
+#if DEBUG
 					Globals.Monitor.Log($"Matched {statField} to {field.Name}");
 					Globals.Monitor.Log($"Expected value: {field.GetValue(Game1.stats)}");
 					Globals.Monitor.Log($"Actual value: {foundStat}");
-					#endif
+#endif
 				}
 			}
 
@@ -290,11 +313,11 @@ namespace StatsAsTokens
 						found = true;
 						foundStat = statsDict[playerType].stat_dictionary[key].ToString();
 
-						#if DEBUG
+#if DEBUG
 						Globals.Monitor.Log($"Matched {statField} to {key}");
 						Globals.Monitor.Log($"Expected value: {Game1.stats.stat_dictionary[key]}");
 						Globals.Monitor.Log($"Actual value: {foundStat}");
-						#endif
+#endif
 					}
 				}
 			}

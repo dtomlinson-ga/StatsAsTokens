@@ -45,15 +45,15 @@ Here is a complete list of stats currently usable as arguments:
 * `cheeseMade`
 * `goatCheeseMade`
 * `trufflesFound`
-* `stoneGathered`
-* `rocksCrushed`
+* `stoneGathered` - Note: This is how many pieces of stone you have picked up, from any source.
+* `rocksCrushed` - This is how many rocks you have broken.
 * `dirtHoed`
 * `giftsGiven`
 * `timesUnconscious`
 * `averageBedtime`
 * `timesFished`
 * `fishCaught`
-* `bouldersCracked`
+* `bouldersCracked` - And this is how many boulders (big 2x2 clumps) you have broken.
 * `stumpsChopped`
 * `stepsTaken`
 * `monstersKilled`
@@ -90,7 +90,18 @@ Here is a complete list of stats currently usable as arguments:
 * `hardModeMonstersKilled`
 * `childrenTurnedToDoves`
 * `boatRidesToIsland`
-* `trashCansChecked`
+* `trashCansChecked`  
+\* Note that certain stats are broken (weren't properly being tracked by the game) and will not be accurate on existing saves. On new saves, they should work as intended since I have introduced a fix for these.
+
+And some custom stats that I have added support for (mostly stuff that seems to have been left out of the game for whatever reason):
+* `ostrichEggsLayed`
+* `dinosaurEggsLayed`
+* `duckFeathersDropped`
+* `rabbitsFeetDropped`
+* `mayonnaiseMade`
+* `duckMayonnaiseMade`
+* `voidMayonnaiseMade`
+* `dinosaurMayonnaiseMade`
 
 ### **`Vertigon.StatsAsTokens/MonstersKilled`**
 
@@ -275,10 +286,14 @@ Here is a slightly trickier condition which combines number manipulation with a 
 **Query expressions, while powerful, are also unpredictable** - they are not fully validated ahead of time, and may just fail without warning if improperly formatted. Test your expressions thoroughly with the `patch parse` command.
 
 ### Upcoming Features
- * Track more custom stats! Message me on Discord (Vertigon#1851) if you have ideas for custom stats to track
-	* Number of items gifted by type - game already tracks total number
- * Track spouse anniversaries/days married
- * Track children birthdays/days alive
+  * Track more custom stats! Message me on Discord (Vertigon#1851) if you have ideas for custom stats to track
+    * Number of items gifted by type - game already tracks total number
+    * Number of items cooked/crafted - filterable by item name
+    * Number of trees planted - filterable by type
+    * Number of buildings built - filterable by type
+	* Recipes learned - use with `|contains=` argument
+  * Track spouse anniversaries/days married
+  * Track children birthdays/days alive
 
 #### If you have any issues:
 * Read the documentation carefully. I have tried to be as thorough as possible.
