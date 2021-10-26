@@ -115,14 +115,10 @@ namespace StatsAsTokens
 			{
 				Game1.player.stats = InitializeOtherStatFields(Game1.player.stats);
 
-				if (Game1.IsMasterGame)
-				{
-					statsDict[host] = Game1.player.stats;
-				}
-				else
-				{
-					statsDict[loc] = Game1.player.stats;
-				}
+				// it's fine if these resolve to the same player
+				statsDict[host] = Game1.MasterPlayer.stats;
+				statsDict[loc] = Game1.player.stats;
+
 				statsInitialized = true;
 			}
 
@@ -145,7 +141,7 @@ namespace StatsAsTokens
 					else if (field.FieldType.Equals(typeof(SerializableDictionary<string, uint>)))
 					{
 						SerializableDictionary<string, uint> otherStats = (SerializableDictionary<string, uint>)field.GetValue(Game1.stats);
-						SerializableDictionary<string, uint> cachedOtherStats = statsDict[loc].stat_dictionary;
+						SerializableDictionary<string, uint> cachedOtherStats = statsDict[pType].stat_dictionary;
 
 						foreach (KeyValuePair<string, uint> pair in otherStats)
 						{
