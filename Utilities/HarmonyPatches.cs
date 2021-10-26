@@ -61,7 +61,7 @@ namespace StatsAsTokens
 
 		public static void Farmer_eatObject_Prefix(Farmer __instance, StardewValley.Object o)
 		{
-			string foodID = o.parentSheetIndex.ToString();
+			string foodID = o.ParentSheetIndex.ToString();
 			Farmer f = __instance;
 
 			string pType;
