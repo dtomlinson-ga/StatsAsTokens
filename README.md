@@ -286,14 +286,20 @@ Here is a slightly trickier condition which combines number manipulation with a 
 **Query expressions, while powerful, are also unpredictable** - they are not fully validated ahead of time, and may just fail without warning if improperly formatted. Test your expressions thoroughly with the `patch parse` command.
 
 ### Upcoming Features
+  * Rework argument handling to be more generic
+	* Pass in arguments in any order
+	* Take PlayerId as parameter (see Content Patcher 1.24.0)
+	* Support JA/DGA items
   * Track more custom stats! Message me on Discord (Vertigon#1851) if you have ideas for custom stats to track
     * Number of items gifted by type - game already tracks total number
     * Number of items cooked/crafted - filterable by item name
     * Number of trees planted - filterable by type
     * Number of buildings built - filterable by type
 	* Recipes learned - use with `|contains=` argument
+	* Items donated to the museum
   * Track spouse anniversaries/days married
   * Track children birthdays/days alive
+  * Previous day's weather
 
 #### If you have any issues:
 * Read the documentation carefully. I have tried to be as thorough as possible.
