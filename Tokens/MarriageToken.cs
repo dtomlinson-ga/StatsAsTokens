@@ -1,55 +1,24 @@
-﻿// Copyright (C) 2021 Vertigon
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see https://www.gnu.org/licenses/.
-
-using StardewModdingAPI;
-using StardewModdingAPI.Utilities;
-using StardewValley;
-using StardewValley.Buildings;
-using StardewValley.Characters;
-using System;
+﻿using StardewModdingAPI.Utilities;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace StatsAsTokens
 {
-	internal class AnimalsOwnedToken : BaseToken
+	internal class MarriageToken : BaseToken
 	{
-		public static List<Character> cachedAnimals;
-		public static Dictionary<Guid, SDate> horseAges;
-		public static List<string> validArgs;
+		public static Dictionary<string, SDate> anniversaryDict;
 		public string tokenType = "";
-		public string outputSeparator = null;
 
-		public AnimalsOwnedToken(string field)
+		public MarriageToken(string field)
 		{
-			cachedAnimals = new List<Character>();
-			horseAges = new Dictionary<Guid, SDate>();
-			validArgs = GetValidAnimalNames();
 			tokenType = field;
-		}
-
-		public override bool CanHaveMultipleValues(string input = null)
-		{
-			return (cachedAnimals.Count > 1);
 		}
 
 		public override bool TryValidateInput(string input, out string error)
 		{
 			error = "";
 			string[] args = input.ToLower().Split('|');
-			string validArgsText = @"'[White/Brown/Blue/Void/Golden] Chicken', 'Duck', 'Rabbit', 'Dinosaur', '[White/Brown] Cow', 'Goat', 'Pig', 'Hog', 'Sheep', 'Ostrich', 'Horse', 'Any', 'Barn', 'Coop' (or matching the name of a custom animal, such as one added by BFAV)";
-
+			
 			if (args.Count() > 0)
 			{
 				if (!args[0].Contains("type="))
@@ -74,14 +43,17 @@ namespace StatsAsTokens
 
 					foreach (string animal in validArgs)
 					{
-						if (matched) break;
+						if (matched)
+						{
+							break;
+						}
 
 						if (animal.ToLower().Replace(" ", "").Contains(animalType))
 						{
 							matched = true;
 						}
 					}
-						
+
 					if (!matched)
 					{
 						error += $"Named argument 'type' must be one of the following values: {validArgsText}. ";
@@ -188,9 +160,9 @@ namespace StatsAsTokens
 					{
 						if (farmAnimal.buildingTypeILiveIn.Value.ToLower().Contains(inputAnimal))
 						{
-							#if DEBUG
+#if DEBUG
 							Globals.Monitor.Log($"Matched '{inputAnimal}' to {AnimalType(farmAnimal)} {AnimalName(farmAnimal)} [{AnimalId(farmAnimal)}] which is age {AnimalAge(farmAnimal)}.");
-							#endif
+#endif
 
 							output.Add(GetReturnValue(animal, tokenType));
 						}
@@ -199,9 +171,9 @@ namespace StatsAsTokens
 				else if (AnimalType(animal).ToLower().Replace(" ", "").Contains(inputAnimal) || inputAnimal is "any")
 				{
 
-					#if DEBUG
+#if DEBUG
 					Globals.Monitor.Log($"Matched '{inputAnimal}' to {AnimalType(animal)} {AnimalName(animal)} [{AnimalId(animal)}] which is age {AnimalAge(animal)}.");
-					#endif
+#endif
 
 					output.Add(GetReturnValue(animal, tokenType));
 				}
@@ -242,7 +214,7 @@ namespace StatsAsTokens
 					_ => null,
 				};
 			}
-			
+
 			return null;
 		}
 
@@ -265,10 +237,25 @@ namespace StatsAsTokens
 			return horses;
 		}
 
-		private string AnimalType(Character animal) => GetReturnValue(animal, "type");
-		private string AnimalName(Character animal) => GetReturnValue(animal, "name");
-		private string AnimalAge(Character animal) => GetReturnValue(animal, "age");
-		private string AnimalId(Character animal) => GetReturnValue(animal, "id");
+		private string AnimalType(Character animal)
+		{
+			return GetReturnValue(animal, "type");
+		}
+
+		private string AnimalName(Character animal)
+		{
+			return GetReturnValue(animal, "name");
+		}
+
+		private string AnimalAge(Character animal)
+		{
+			return GetReturnValue(animal, "age");
+		}
+
+		private string AnimalId(Character animal)
+		{
+			return GetReturnValue(animal, "id");
+		}
 
 		private int GetAge(Character animal)
 		{
@@ -289,4 +276,6 @@ namespace StatsAsTokens
 			return Globals.Helper.Content.Load<Dictionary<string, string>>("Data/FarmAnimals", ContentSource.GameContent).Keys.Concat(new List<string>() { "Horse", "Any", "Barn", "Coop" }).ToList();
 		}
 	}
+
+}
 }

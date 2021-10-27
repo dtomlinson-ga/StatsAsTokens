@@ -201,11 +201,7 @@ namespace StatsAsTokens
 
 				harmony.Patch(
 					original: dropIn,
-					prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(Object_checkForAction_Prefix))
-				);
-
-				harmony.Patch(
-					original: dropIn,
+					prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(Object_checkForAction_Prefix)),
 					postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(Object_checkForAction_Postfix))
 				);
 
@@ -241,7 +237,7 @@ namespace StatsAsTokens
 				{
 					uint addQuantity = (uint)__state.Stack;
 
-					switch (__state.parentSheetIndex.Value)
+					switch (__state.ParentSheetIndex)
 					{
 						case 306:
 							if (Game1.stats.stat_dictionary.ContainsKey("mayonnaiseMade"))
