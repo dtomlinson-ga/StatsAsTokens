@@ -295,7 +295,6 @@ Here is a slightly trickier condition which combines number manipulation with a 
     * Number of items cooked/crafted - filterable by item name
     * Number of trees planted - filterable by type
     * Number of buildings built - filterable by type
-	* Recipes learned - use with `|contains=` argument
 	* Items donated to the museum
   * Track spouse anniversaries/days married
   * Track children birthdays/days alive
