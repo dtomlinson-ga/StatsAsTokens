@@ -35,6 +35,7 @@ namespace StatsAsTokens
 			Farmer_eatObject_Patch();
 			Tree_performTreeFall_Patch();
 			Object_performObjectDropInAction_Patch();
+			Object_placementAction_Patch();
 			Object_checkForAction_Patch();
 			ResourceClump_performToolAction_Patch();
 			FarmAnimal_dayUpdate_Patch();
@@ -51,7 +52,7 @@ namespace StatsAsTokens
 					prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(Farmer_eatObject_Prefix))
 				);
 
-				Globals.Monitor.Log($"Patched {eatObject.Name} successfully");
+				Globals.Monitor.Log($"Patched {eatObject.DeclaringType}::{eatObject.Name} successfully");
 			}
 			catch (Exception ex)
 			{
@@ -93,7 +94,7 @@ namespace StatsAsTokens
 					prefix: new HarmonyMethod(typeof(HarmonyPatches), nameof(Tree_performTreeFall_Prefix))
 				);
 
-				Globals.Monitor.Log($"Patched {treeFall.Name} successfully");
+				Globals.Monitor.Log($"Patched {treeFall.DeclaringType}::{treeFall.Name} successfully");
 			}
 			catch (Exception ex)
 			{
@@ -152,7 +153,7 @@ namespace StatsAsTokens
 					postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(Object_performObjectDropInAction_Postfix))
 				);
 
-				Globals.Monitor.Log($"Patched {dropIn.Name} successfully");
+				Globals.Monitor.Log($"Patched {dropIn.DeclaringType}::{dropIn.Name} successfully");
 			}
 			catch (Exception ex)
 			{
@@ -209,7 +210,7 @@ namespace StatsAsTokens
 					postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(Object_checkForAction_Postfix))
 				);
 
-				Globals.Monitor.Log($"Patched {dropIn.Name} successfully");
+				Globals.Monitor.Log($"Patched {dropIn.DeclaringType}::{dropIn.Name} successfully");
 			}
 			catch (Exception ex)
 			{
@@ -241,7 +242,7 @@ namespace StatsAsTokens
 				{
 					uint addQuantity = (uint)__state.Stack;
 
-					switch (__state.parentSheetIndex.Value)
+					switch (__state.ParentSheetIndex)
 					{
 						case 306:
 							if (Game1.stats.stat_dictionary.ContainsKey("mayonnaiseMade"))
@@ -294,6 +295,33 @@ namespace StatsAsTokens
 			}
 		}
 
+		private static void Object_placementAction_Patch()
+		{
+			try
+			{
+				MethodBase placementAction = typeof(StardewValley.Object).GetMethod("placementAction");
+
+				harmony.Patch(
+					original: placementAction,
+					postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(Object_placementAction_Postfix))
+				);
+
+				Globals.Monitor.Log($"Patched {placementAction.DeclaringType}::{placementAction.Name} successfully");
+			}
+			catch (Exception ex)
+			{
+				Globals.Monitor.Log($"Exception encountered while patching methods: {nameof(Object_placementAction_Postfix)}: {ex}", LogLevel.Error);
+			}
+		}
+
+		public static void Object_placementAction_Postfix(StardewValley.Object __instance, Farmer who, ref bool __result)
+		{
+			if (__instance.ParentSheetIndex is 891 or 292 or 310 or 311 && __result)
+			{
+				Game1.player.stats.stat_dictionary["treesPlanted"] = Game1.player.stats.stat_dictionary.ContainsKey("treesPlanted") ? Game1.player.stats.stat_dictionary["treesPlanted"] + 1 : 1;
+			}
+		}
+
 		private static void ResourceClump_performToolAction_Patch()
 		{
 			try
@@ -305,7 +333,7 @@ namespace StatsAsTokens
 					postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(ResourceClump_performToolAction_Postfix))
 				);
 
-				Globals.Monitor.Log($"Patched {performToolAction.Name} successfully");
+				Globals.Monitor.Log($"Patched {performToolAction.DeclaringType}::{performToolAction.Name} successfully");
 			}
 			catch (Exception ex)
 			{
@@ -339,7 +367,7 @@ namespace StatsAsTokens
 					transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(FarmAnimal_dayUpdate_Transpiler))
 				);
 
-				Globals.Monitor.Log($"Patched {dayUpdate.Name} successfully");
+				Globals.Monitor.Log($"Patched {dayUpdate.DeclaringType}::{dayUpdate.Name} successfully");
 			}
 			catch (Exception ex)
 			{
