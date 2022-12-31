@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2021 Vertigon
+// Copyright (C) 2021 Vertigon
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
@@ -43,7 +43,7 @@ namespace StatsAsTokens
 		/// </summary>
 		static FoodEatenToken()
 		{
-			objectData = Globals.Helper.Content.Load<Dictionary<int, string>>("Data/ObjectInformation", ContentSource.GameContent);
+			objectData = Globals.Helper.GameContent.Load<Dictionary<int, string>>("Data/ObjectInformation");
 
 			foodEatenDict = new();
 			cachedFoodEatenDict = new();
