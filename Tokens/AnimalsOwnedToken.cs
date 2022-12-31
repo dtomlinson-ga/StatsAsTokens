@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2021 Vertigon
+// Copyright (C) 2021 Vertigon
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
@@ -116,52 +116,61 @@ namespace StatsAsTokens
 		protected override bool DidStatsChange()
 		{
 			bool hasChanged = false;
-			List<FarmAnimal> currentAnimals = Game1.getFarm().getAllFarmAnimals();
-			List<Horse> currentHorses = GetAllHorses();
-
-			// if cached data differs from current data, update and return true
-
-			// Check to see if currently owned animals are cached - add to cache if not
-			foreach (FarmAnimal animal in currentAnimals)
+			try
 			{
-				if (!cachedAnimals.Contains(animal))
-				{
-					hasChanged = true;
-					cachedAnimals.Add(animal);
-				}
-			}
+				List<FarmAnimal> currentAnimals = Game1.getFarm().getAllFarmAnimals();
+				List<Horse> currentHorses = GetAllHorses();
 
-			// Check to see if currently owned horses are cached - add to cache if not
-			foreach (Horse horse in currentHorses)
-			{
-				if (!cachedAnimals.Contains(horse))
-				{
-					hasChanged = true;
-					cachedAnimals.Add(horse);
-					horseAges.Add(horse.HorseId, SDate.Now());
-				}
-			}
 
-			// Check to see if all animals in cache are currently owned - remove if not
-			foreach (Character animal in cachedAnimals.ToList())
-			{
-				if (animal is FarmAnimal fAnimal)
+
+				// if cached data differs from current data, update and return true
+
+				// Check to see if currently owned animals are cached - add to cache if not
+				foreach (FarmAnimal animal in currentAnimals)
 				{
-					if (!currentAnimals.Contains(fAnimal))
+					if (!cachedAnimals.Contains(animal))
 					{
 						hasChanged = true;
-						cachedAnimals.Remove(fAnimal);
+						cachedAnimals.Add(animal);
 					}
 				}
-				else if (animal is Horse horse)
+
+				// Check to see if currently owned horses are cached - add to cache if not
+				foreach (Horse horse in currentHorses)
 				{
-					if (!currentHorses.Contains(horse))
+					if (!cachedAnimals.Contains(horse))
 					{
 						hasChanged = true;
-						cachedAnimals.Remove(horse);
-						horseAges.Remove(horse.HorseId);
+						cachedAnimals.Add(horse);
+						horseAges.Add(horse.HorseId, SDate.Now());
 					}
 				}
+
+				// Check to see if all animals in cache are currently owned - remove if not
+				foreach (Character animal in cachedAnimals.ToList())
+				{
+					if (animal is FarmAnimal fAnimal)
+					{
+						if (!currentAnimals.Contains(fAnimal))
+						{
+							hasChanged = true;
+							cachedAnimals.Remove(fAnimal);
+						}
+					}
+					else if (animal is Horse horse)
+					{
+						if (!currentHorses.Contains(horse))
+						{
+							hasChanged = true;
+							cachedAnimals.Remove(horse);
+							horseAges.Remove(horse.HorseId);
+						}
+					}
+				}
+			}
+			catch (NullReferenceException)
+			{
+				return false;
 			}
 
 			return hasChanged;
@@ -286,7 +295,7 @@ namespace StatsAsTokens
 
 		private List<string> GetValidAnimalNames()
 		{
-			return Globals.Helper.Content.Load<Dictionary<string, string>>("Data/FarmAnimals", ContentSource.GameContent).Keys.Concat(new List<string>() { "Horse", "Any", "Barn", "Coop" }).ToList();
+			return Globals.Helper.GameContent.Load<Dictionary<string, string>>("Data/FarmAnimals").Keys.Concat(new List<string>() { "Horse", "Any", "Barn", "Coop" }).ToList();
 		}
 	}
 }
