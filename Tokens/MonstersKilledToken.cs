@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2021 Vertigon
+// Copyright (C) 2021 Vertigon
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
@@ -190,7 +190,7 @@ namespace StatsAsTokens
 		private SerializableDictionary<string, int> InitializeMonstersKilledStats()
 		{
 			SerializableDictionary<string, int> monstersKilled = new();
-			Dictionary<string, string> monsterData = Globals.Helper.Content.Load<Dictionary<string, string>>("Data/Monsters", ContentSource.GameContent);
+			Dictionary<string, string> monsterData = Globals.Helper.GameContent.Load<Dictionary<string, string>>("Data/Monsters");
 
 			foreach (KeyValuePair<string, string> monster in monsterData)
 			{
