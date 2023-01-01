@@ -116,61 +116,55 @@ namespace StatsAsTokens
 		protected override bool DidStatsChange()
 		{
 			bool hasChanged = false;
-			try
+
+			// Use a null conditional and null coalesce so an empty list is returned in the event of a null object
+			List<FarmAnimal> currentAnimals = Game1.getFarm()?.getAllFarmAnimals() ?? new List<FarmAnimal>();
+			List<Horse> currentHorses = GetAllHorses();
+
+
+			// if cached data differs from current data, update and return true
+
+			// Check to see if currently owned animals are cached - add to cache if not
+			foreach (FarmAnimal animal in currentAnimals)
 			{
-				List<FarmAnimal> currentAnimals = Game1.getFarm().getAllFarmAnimals();
-				List<Horse> currentHorses = GetAllHorses();
-
-
-
-				// if cached data differs from current data, update and return true
-
-				// Check to see if currently owned animals are cached - add to cache if not
-				foreach (FarmAnimal animal in currentAnimals)
+				if (!cachedAnimals.Contains(animal))
 				{
-					if (!cachedAnimals.Contains(animal))
-					{
-						hasChanged = true;
-						cachedAnimals.Add(animal);
-					}
-				}
-
-				// Check to see if currently owned horses are cached - add to cache if not
-				foreach (Horse horse in currentHorses)
-				{
-					if (!cachedAnimals.Contains(horse))
-					{
-						hasChanged = true;
-						cachedAnimals.Add(horse);
-						horseAges.Add(horse.HorseId, SDate.Now());
-					}
-				}
-
-				// Check to see if all animals in cache are currently owned - remove if not
-				foreach (Character animal in cachedAnimals.ToList())
-				{
-					if (animal is FarmAnimal fAnimal)
-					{
-						if (!currentAnimals.Contains(fAnimal))
-						{
-							hasChanged = true;
-							cachedAnimals.Remove(fAnimal);
-						}
-					}
-					else if (animal is Horse horse)
-					{
-						if (!currentHorses.Contains(horse))
-						{
-							hasChanged = true;
-							cachedAnimals.Remove(horse);
-							horseAges.Remove(horse.HorseId);
-						}
-					}
+					hasChanged = true;
+					cachedAnimals.Add(animal);
 				}
 			}
-			catch (NullReferenceException)
+
+			// Check to see if currently owned horses are cached - add to cache if not
+			foreach (Horse horse in currentHorses)
 			{
-				return false;
+				if (!cachedAnimals.Contains(horse))
+				{
+					hasChanged = true;
+					cachedAnimals.Add(horse);
+					horseAges.Add(horse.HorseId, SDate.Now());
+				}
+			}
+
+			// Check to see if all animals in cache are currently owned - remove if not
+			foreach (Character animal in cachedAnimals.ToList())
+			{
+				if (animal is FarmAnimal fAnimal)
+				{
+					if (!currentAnimals.Contains(fAnimal))
+					{
+						hasChanged = true;
+						cachedAnimals.Remove(fAnimal);
+					}
+				}
+				else if (animal is Horse horse)
+				{
+					if (!currentHorses.Contains(horse))
+					{
+						hasChanged = true;
+						cachedAnimals.Remove(horse);
+						horseAges.Remove(horse.HorseId);
+					}
+				}
 			}
 
 			return hasChanged;
@@ -259,7 +253,8 @@ namespace StatsAsTokens
 		{
 			List<Horse> horses = new();
 
-			foreach (Building b in Game1.getFarm().buildings)
+			// Use a null conditional and null coalesce so an empty list is returned in the event of a null object
+			foreach (Building b in Game1.getFarm()?.buildings ?? new Netcode.NetCollection<Building>())
 			{
 				if (b is Stable stable)
 				{
