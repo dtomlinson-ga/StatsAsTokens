@@ -122,6 +122,19 @@ namespace StatsAsTokens
 					}
 				}
 			}
+			
+			// check Game1's local player stats against cached data and reset cached data to 0 if stat is not present in the Game1 stats 
+			if (!Game1.IsMasterGame)
+			{
+				foreach (KeyValuePair<string, int> pair in cachedMonStats)
+				{
+					if (!monStats.ContainsKey(pair.Key))
+					{
+						hasChanged = true;
+						cachedMonStats[pair.Key] = 0;
+					}
+				}
+			}
 
 			pType = host;
 
@@ -141,6 +154,17 @@ namespace StatsAsTokens
 				{
 					hasChanged = true;
 					cachedMonStats[pair.Key] = pair.Value;
+				}
+			}
+
+
+			// check Game1's master player stats against cached data and reset cached data to 0 if stat is not present in the Game1 stats 
+			foreach (KeyValuePair<string, int> pair in cachedMonStats)
+            {
+				if (!monStats.ContainsKey(pair.Key))
+				{
+					hasChanged = true;
+					cachedMonStats[pair.Key] = 0;
 				}
 			}
 
@@ -221,7 +245,8 @@ namespace StatsAsTokens
 			{
 				foreach (string key in monsterStatsDict[playerType].Keys)
 				{
-					if (key.ToLower().Replace(" ", "").Equals(monsterName))
+					var formattedkey = key.ToLower().Replace(" ", "");
+					if (formattedkey.Equals(monsterName))
 					{
 						found = true;
 						monsterNum = monsterStatsDict[playerType][key].ToString();
