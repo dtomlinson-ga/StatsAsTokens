@@ -245,8 +245,7 @@ namespace StatsAsTokens
 			{
 				foreach (string key in monsterStatsDict[playerType].Keys)
 				{
-					var formattedkey = key.ToLower().Replace(" ", "");
-					if (formattedkey.Equals(monsterName))
+					if (key.ToLower().Replace(" ", "").Equals(monsterName))
 					{
 						found = true;
 						monsterNum = monsterStatsDict[playerType][key].ToString();
