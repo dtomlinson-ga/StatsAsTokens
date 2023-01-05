@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2021 Vertigon
+// Copyright (C) 2021 Vertigon
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
@@ -122,6 +122,19 @@ namespace StatsAsTokens
 					}
 				}
 			}
+			
+			// check Game1's local player stats against cached data and reset cached data to 0 if stat is not present in the Game1 stats 
+			if (!Game1.IsMasterGame)
+			{
+				foreach (KeyValuePair<string, int> pair in cachedMonStats)
+				{
+					if (!monStats.ContainsKey(pair.Key))
+					{
+						hasChanged = true;
+						cachedMonStats[pair.Key] = 0;
+					}
+				}
+			}
 
 			pType = host;
 
@@ -141,6 +154,17 @@ namespace StatsAsTokens
 				{
 					hasChanged = true;
 					cachedMonStats[pair.Key] = pair.Value;
+				}
+			}
+
+
+			// check Game1's master player stats against cached data and reset cached data to 0 if stat is not present in the Game1 stats 
+			foreach (KeyValuePair<string, int> pair in cachedMonStats)
+            {
+				if (!monStats.ContainsKey(pair.Key))
+				{
+					hasChanged = true;
+					cachedMonStats[pair.Key] = 0;
 				}
 			}
 
@@ -190,7 +214,7 @@ namespace StatsAsTokens
 		private SerializableDictionary<string, int> InitializeMonstersKilledStats()
 		{
 			SerializableDictionary<string, int> monstersKilled = new();
-			Dictionary<string, string> monsterData = Globals.Helper.Content.Load<Dictionary<string, string>>("Data/Monsters", ContentSource.GameContent);
+			Dictionary<string, string> monsterData = Globals.Helper.GameContent.Load<Dictionary<string, string>>("Data/Monsters");
 
 			foreach (KeyValuePair<string, string> monster in monsterData)
 			{
