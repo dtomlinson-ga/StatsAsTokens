@@ -255,6 +255,7 @@ namespace StatsAsTokens
 				"duckMayonnaiseMade",
 				"voidMayonnaiseMade",
 				"dinosaurMayonnaiseMade",
+				"treesPlanted"
 			};
 
 			foreach (string stat in otherStats)

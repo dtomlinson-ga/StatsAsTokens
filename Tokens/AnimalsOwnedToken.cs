@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2021 Vertigon
+// Copyright (C) 2021 Vertigon
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
@@ -47,7 +47,8 @@ namespace StatsAsTokens
 		public override bool TryValidateInput(string input, out string error)
 		{
 			error = "";
-			string[] args = input.ToLower().Split('|');
+			// Use a null conditional and null coalesce so an empty string array is returned in the event of a null input
+			string[] args = input?.ToLower()?.Split('|') ?? new string[0];
 			string validArgsText = @"'[White/Brown/Blue/Void/Golden] Chicken', 'Duck', 'Rabbit', 'Dinosaur', '[White/Brown] Cow', 'Goat', 'Pig', 'Hog', 'Sheep', 'Ostrich', 'Horse', 'Any', 'Barn', 'Coop' (or matching the name of a custom animal, such as one added by BFAV)";
 
 			if (args.Count() > 0)
@@ -116,8 +117,11 @@ namespace StatsAsTokens
 		protected override bool DidStatsChange()
 		{
 			bool hasChanged = false;
-			List<FarmAnimal> currentAnimals = Game1.getFarm().getAllFarmAnimals();
+
+			// Use a null conditional and null coalesce so an empty list is returned in the event of a null object
+			List<FarmAnimal> currentAnimals = Game1.getFarm()?.getAllFarmAnimals() ?? new List<FarmAnimal>();
 			List<Horse> currentHorses = GetAllHorses();
+
 
 			// if cached data differs from current data, update and return true
 
@@ -250,7 +254,8 @@ namespace StatsAsTokens
 		{
 			List<Horse> horses = new();
 
-			foreach (Building b in Game1.getFarm().buildings)
+			// Use a null conditional and null coalesce so an empty list is returned in the event of a null object
+			foreach (Building b in Game1.getFarm()?.buildings ?? new Netcode.NetCollection<Building>())
 			{
 				if (b is Stable stable)
 				{
@@ -286,7 +291,7 @@ namespace StatsAsTokens
 
 		private List<string> GetValidAnimalNames()
 		{
-			return Globals.Helper.Content.Load<Dictionary<string, string>>("Data/FarmAnimals", ContentSource.GameContent).Keys.Concat(new List<string>() { "Horse", "Any", "Barn", "Coop" }).ToList();
+			return Globals.Helper.GameContent.Load<Dictionary<string, string>>("Data/FarmAnimals").Keys.Concat(new List<string>() { "Horse", "Any", "Barn", "Coop" }).ToList();
 		}
 	}
 }
