@@ -48,10 +48,10 @@ namespace StatsAsTokens
 		{
 			error = "";
 			// Use a null conditional and null coalesce so an empty string array is returned in the event of a null input
-			string[] args = input?.ToLower()?.Split('|') ?? new string[0];
+			string[] args = input?.ToLower()?.Split('|') ?? Array.Empty<string>();
 			string validArgsText = @"'[White/Brown/Blue/Void/Golden] Chicken', 'Duck', 'Rabbit', 'Dinosaur', '[White/Brown] Cow', 'Goat', 'Pig', 'Hog', 'Sheep', 'Ostrich', 'Horse', 'Any', 'Barn', 'Coop' (or matching the name of a custom animal, such as one added by BFAV)";
 
-			if (args.Count() > 0)
+			if (args.Any())
 			{
 				if (!args[0].Contains("type="))
 				{
@@ -66,12 +66,7 @@ namespace StatsAsTokens
 					// accept hostplayer or host, localplayer or local
 					string animalType = args[0].Substring(args[0].IndexOf('=') + 1).Replace(" ", "");
 
-					bool matched = false;
-
-					if (animalType.Equals("any"))
-					{
-						matched = true;
-					}
+					bool matched = animalType.Equals("any");
 
 					foreach (string animal in validArgs)
 					{
@@ -82,14 +77,14 @@ namespace StatsAsTokens
 							matched = true;
 						}
 					}
-						
+
 					if (!matched)
 					{
 						error += $"Named argument 'type' must be one of the following values: {validArgsText}. ";
 					}
 				}
 
-				if (args.Count() == 2)
+				if (args.Length == 2)
 				{
 					if (!args[1].Contains("separator="))
 					{
@@ -192,9 +187,9 @@ namespace StatsAsTokens
 					{
 						if (farmAnimal.buildingTypeILiveIn.Value.ToLower().Contains(inputAnimal))
 						{
-							#if DEBUG
+#if DEBUG
 							Globals.Monitor.Log($"Matched '{inputAnimal}' to {AnimalType(farmAnimal)} {AnimalName(farmAnimal)} [{AnimalId(farmAnimal)}] which is age {AnimalAge(farmAnimal)}.");
-							#endif
+#endif
 
 							output.Add(GetReturnValue(animal, tokenType));
 						}
@@ -203,15 +198,15 @@ namespace StatsAsTokens
 				else if (AnimalType(animal).ToLower().Replace(" ", "").Contains(inputAnimal) || inputAnimal is "any")
 				{
 
-					#if DEBUG
+#if DEBUG
 					Globals.Monitor.Log($"Matched '{inputAnimal}' to {AnimalType(animal)} {AnimalName(animal)} [{AnimalId(animal)}] which is age {AnimalAge(animal)}.");
-					#endif
+#endif
 
 					output.Add(GetReturnValue(animal, tokenType));
 				}
 			}
 
-			if (args.Count() == 2)
+			if (args.Length == 2)
 			{
 				string sep = args[1].Substring(args[1].IndexOf('=') + 1);
 
@@ -222,7 +217,7 @@ namespace StatsAsTokens
 
 		}
 
-		private string GetReturnValue(Character animal, string type)
+		private static string GetReturnValue(Character animal, string type)
 		{
 			if (animal is FarmAnimal farmAnimal)
 			{
@@ -246,36 +241,35 @@ namespace StatsAsTokens
 					_ => null,
 				};
 			}
-			
+
 			return null;
 		}
 
-		private List<Horse> GetAllHorses()
+		private static List<Horse> GetAllHorses()
 		{
 			List<Horse> horses = new();
 
 			// Use a null conditional and null coalesce so an empty list is returned in the event of a null object
 			foreach (Building b in Game1.getFarm()?.buildings ?? new Netcode.NetCollection<Building>())
 			{
-				if (b is Stable stable)
+				if (b is not Stable stable) continue;
+
+				Horse h = stable.getStableHorse();
+				if (h?.Name is not null && h.Name != "")
 				{
-					Horse h = stable.getStableHorse();
-					if (h?.Name is not null && h.Name != "")
-					{
-						horses.Add(h);
-					}
+					horses.Add(h);
 				}
 			}
 
 			return horses;
 		}
 
-		private string AnimalType(Character animal) => GetReturnValue(animal, "type");
-		private string AnimalName(Character animal) => GetReturnValue(animal, "name");
-		private string AnimalAge(Character animal) => GetReturnValue(animal, "age");
-		private string AnimalId(Character animal) => GetReturnValue(animal, "id");
+		private static string AnimalType(Character animal) => GetReturnValue(animal, "type");
+		private static string AnimalName(Character animal) => GetReturnValue(animal, "name");
+		private static string AnimalAge(Character animal) => GetReturnValue(animal, "age");
+		private static string AnimalId(Character animal) => GetReturnValue(animal, "id");
 
-		private int GetAge(Character animal)
+		private static int GetAge(Character animal)
 		{
 			if (animal is FarmAnimal fAnimal)
 			{
@@ -289,7 +283,7 @@ namespace StatsAsTokens
 			return 0;
 		}
 
-		private List<string> GetValidAnimalNames()
+		private static List<string> GetValidAnimalNames()
 		{
 			return Globals.Helper.GameContent.Load<Dictionary<string, string>>("Data/FarmAnimals").Keys.Concat(new List<string>() { "Horse", "Any", "Barn", "Coop" }).ToList();
 		}

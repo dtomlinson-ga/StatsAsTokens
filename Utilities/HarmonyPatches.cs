@@ -7,16 +7,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see https://www.gnu.org/licenses/.
 
-using StardewModdingAPI;
+using HarmonyLib;
 using StardewValley;
 using StardewValley.TerrainFeatures;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using HarmonyLib;
-using StardewValley.Network;
 using Object = StardewValley.Object;
 
 namespace StatsAsTokens
@@ -24,9 +21,6 @@ namespace StatsAsTokens
 	[HarmonyPatch]
 	internal class HarmonyPatches
 	{
-		/*********
-		** FoodEatenToken patch
-		*********/
 
 		private static Harmony Harmony;
 		private static readonly MethodInfo set_RabbitWoolProduced = typeof(Stats).GetMethod("set_RabbitWoolProduced");
@@ -37,7 +31,7 @@ namespace StatsAsTokens
 			Harmony = new(Globals.Manifest.UniqueID);
 			Harmony.PatchAll();
 		}
-		
+
 		[HarmonyPatch(typeof(Farmer), nameof(Farmer.eatObject))]
 		[HarmonyPrefix]
 		public static void Farmer_eatObject_Prefix(Farmer __instance, StardewValley.Object o)
@@ -62,7 +56,7 @@ namespace StatsAsTokens
 			Dictionary<string, Dictionary<string, int>> foodDict = FoodEatenToken.foodEatenDict.Value;
 			foodDict[pType][foodID] = foodDict[pType].ContainsKey(foodID) ? foodDict[pType][foodID] + 1 : 1;
 		}
-		
+
 		[HarmonyPatch(typeof(Tree), "performTreeFall")]
 		[HarmonyPrefix]
 		public static void Tree_performTreeFall_Prefix(Tree __instance, Tool t)
@@ -99,7 +93,7 @@ namespace StatsAsTokens
 			Dictionary<string, Dictionary<string, int>> treeDict = TreesFelledToken.treesFelledDict.Value;
 			treeDict[pType][treeType] = treeDict[pType].ContainsKey(treeType) ? treeDict[pType][treeType] + 1 : 1;
 		}
-		
+
 		[HarmonyPatch(typeof(Object), nameof(Object.performObjectDropInAction))]
 		[HarmonyPrefix]
 		public static void Object_performObjectDropInAction_Prefix(StardewValley.Object __instance, Item dropInItem, out int? __state)
@@ -136,7 +130,7 @@ namespace StatsAsTokens
 				}
 			}
 		}
-		
+
 		[HarmonyPatch(typeof(Object), nameof(Object.checkForAction))]
 		[HarmonyPrefix]
 		public static void Object_checkForAction_Prefix(StardewValley.Object __instance, bool justCheckingForActivity, out StardewValley.Object __state)
@@ -225,19 +219,18 @@ namespace StatsAsTokens
 				Game1.player.stats.stat_dictionary["treesPlanted"] = Game1.player.stats.stat_dictionary.ContainsKey("treesPlanted") ? Game1.player.stats.stat_dictionary["treesPlanted"] + 1 : 1;
 			}
 		}
-		
+
 		[HarmonyPatch(typeof(ResourceClump), nameof(ResourceClump.performToolAction))]
 		[HarmonyPostfix]
 		public static void ResourceClump_performToolAction_Postfix(ResourceClump __instance, Tool t)
 		{
-			if (__instance.health.Value <= 0f)
+			if (!(__instance.health.Value <= 0f)) return;
+
+			if (__instance.parentSheetIndex.Value is 672 or 752 or 754 or 756 or 758)
 			{
-				if (__instance.parentSheetIndex.Value is 672 or 752 or 754 or 756 or 758)
+				if (t is not null && t.getLastFarmerToUse() is not null)
 				{
-					if (t is not null && t.getLastFarmerToUse() is not null)
-					{
-						t.getLastFarmerToUse().stats.BouldersCracked++;
-					}
+					t.getLastFarmerToUse().stats.BouldersCracked++;
 				}
 			}
 		}

@@ -12,7 +12,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see https://www.gnu.org/licenses/.
 
-using StardewModdingAPI;
 using StardewValley;
 using System;
 using System.Collections.Generic;
@@ -53,7 +52,7 @@ namespace StatsAsTokens
 			error = "";
 			string[] args = input.ToLower().Trim().Split('|');
 
-			if (args.Count() == 2)
+			if (args.Length == 2)
 			{
 				if (!args[0].Contains("player="))
 				{
@@ -122,7 +121,7 @@ namespace StatsAsTokens
 					}
 				}
 			}
-			
+
 			// check Game1's local player stats against cached data and reset cached data to 0 if stat is not present in the Game1 stats 
 			if (!Game1.IsMasterGame)
 			{
@@ -160,7 +159,7 @@ namespace StatsAsTokens
 
 			// check Game1's master player stats against cached data and reset cached data to 0 if stat is not present in the Game1 stats 
 			foreach (KeyValuePair<string, int> pair in cachedMonStats)
-            {
+			{
 				if (!monStats.ContainsKey(pair.Key))
 				{
 					hasChanged = true;
@@ -211,7 +210,7 @@ namespace StatsAsTokens
 		/// Initialize and return dictionary with all monsters set to 0 kills. Theoretically supports custom monsters if they are added to Data/Monsters.
 		/// </summary>
 		/// <returns>A dictionary containing all monster names as keys with value 0.</returns>
-		private SerializableDictionary<string, int> InitializeMonstersKilledStats()
+		private static SerializableDictionary<string, int> InitializeMonstersKilledStats()
 		{
 			SerializableDictionary<string, int> monstersKilled = new();
 			Dictionary<string, string> monsterData = Globals.Helper.GameContent.Load<Dictionary<string, string>>("Data/Monsters");

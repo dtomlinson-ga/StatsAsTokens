@@ -54,7 +54,7 @@ namespace StatsAsTokens
 			error = "";
 			string[] args = input.ToLower().Trim().Split('|');
 
-			if (args.Count() == 2)
+			if (args.Length == 2)
 			{
 				if (!args[0].Contains("player="))
 				{
@@ -237,7 +237,7 @@ namespace StatsAsTokens
 		/// Initializes stat fields for internal stat dictionary. These stats are not fields in the <c>Stats</c> object and so do not show up normally until they have been incremented at least once.
 		/// </summary>
 		/// <param name="stats">The <c>Stats</c> object to initialize the internal stat dictionary of.</param>
-		private Stats InitializeOtherStatFields(Stats stats)
+		private static Stats InitializeOtherStatFields(Stats stats)
 		{
 			List<string> otherStats = new()
 			{
@@ -301,21 +301,20 @@ namespace StatsAsTokens
 				}
 			}
 
-			if (!found)
+			if (found) return true;
+
+			foreach (string key in statsDict[playerType].stat_dictionary.Keys)
 			{
-				foreach (string key in statsDict[playerType].stat_dictionary.Keys)
+				if (key.ToLower().Replace(" ", "").Equals(statField))
 				{
-					if (key.ToLower().Replace(" ", "").Equals(statField))
-					{
-						found = true;
-						foundStat = statsDict[playerType].stat_dictionary[key].ToString();
+					found = true;
+					foundStat = statsDict[playerType].stat_dictionary[key].ToString();
 
 #if DEBUG
 						Globals.Monitor.Log($"Matched {statField} to {key}");
 						Globals.Monitor.Log($"Expected value: {Game1.stats.stat_dictionary[key]}");
 						Globals.Monitor.Log($"Actual value: {foundStat}");
 #endif
-					}
 				}
 			}
 

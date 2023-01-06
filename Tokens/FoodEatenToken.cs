@@ -12,7 +12,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see https://www.gnu.org/licenses/.
 
-using StardewModdingAPI;
 using StardewValley;
 using System;
 using System.Collections.Generic;
@@ -58,7 +57,7 @@ namespace StatsAsTokens
 			error = "";
 			string[] args = input.ToLower().Trim().Split('|');
 
-			if (args.Count() == 2)
+			if (args.Length == 2)
 			{
 				if (!args[0].Contains("player="))
 				{
@@ -210,7 +209,7 @@ namespace StatsAsTokens
 		/// <param name="playerType"></param>
 		/// <param name="foodEatenNum"></param>
 		/// <returns></returns>
-		private bool TryGetFoodEaten(string foodNameOrId, string playerType, out string foodEatenNum)
+		private static bool TryGetFoodEaten(string foodNameOrId, string playerType, out string foodEatenNum)
 		{
 			string pType = playerType;
 			string foodId = "";

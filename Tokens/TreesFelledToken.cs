@@ -68,7 +68,7 @@ namespace StatsAsTokens
 			error = "";
 			string[] args = input.ToLower().Trim().Split('|');
 
-			if (args.Count() == 2)
+			if (args.Length == 2)
 			{
 				if (!args[0].Contains("player="))
 				{
