@@ -62,15 +62,15 @@ namespace StatsAsTokens
 				}
 				else if (args[0].IndexOf('=') == args[0].Length - 1)
 				{
-					error += "Named argument 'player' not provided a value. Must be one of the following values: 'hostPlayer', 'currentPlayer'. ";
+					error += "Named argument 'player' not provided a value. Must be one of the following values: 'hostPlayer', 'localPlayer'. ";
 				}
 				else
 				{
-					// accepts only hostPlayer or currentPlayer
+					// accepts only hostPlayer or localPlayer
 					string playerType = args[0].Substring(args[0].IndexOf('=') + 1).Trim();
-					if (!(playerType.Equals("hostPlayer") || playerType.Equals("local")))
+					if (!(playerType.Equals(host) || playerType.Equals(loc)))
 					{
-						error += "Named argument 'player' must be one of the following values: 'hostPlayer', 'currentPlayer'. ";
+						error += "Named argument 'player' must be one of the following values: 'hostPlayer', 'localPlayer'. ";
 					}
 				}
 
@@ -207,7 +207,7 @@ namespace StatsAsTokens
 			string playerType = args[0].Substring(args[0].IndexOf('=') + 1).Trim().ToLower().Replace(" ", "");
 			string stat = args[1].Substring(args[1].IndexOf('=') + 1).Trim().ToLower().Replace(" ", "");
 
-			if (playerType.Equals("hostPlayer"))
+			if (playerType.Equals(host))
 			{
 				bool found = TryGetField(stat, host, out string hostStat);
 
@@ -216,7 +216,7 @@ namespace StatsAsTokens
 					output.Add(hostStat);
 				}
 			}
-			else if (playerType.Equals("currentPlayer"))
+			else if (playerType.Equals(loc))
 			{
 				bool found = TryGetField(stat, loc, out string hostStat);
 
@@ -273,7 +273,7 @@ namespace StatsAsTokens
 		/// Attempts to find the specified stat field for the specified player type, and if located, passes the value out via <c>foundStat</c>.
 		/// </summary>
 		/// <param name="statField">The stat to look for</param>
-		/// <param name="playerType">The player type to check - hostPlayer or currentPlayer</param>
+		/// <param name="playerType">The player type to check - hostPlayer or localPlayer</param>
 		/// <param name="foundStat">The string to pass the value to if located.</param>
 		/// <returns><c>True</c> if located, <c>False</c> otherwise.</returns>
 		private bool TryGetField(string statField, string playerType, out string foundStat)

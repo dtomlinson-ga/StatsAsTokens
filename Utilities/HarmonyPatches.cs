@@ -71,11 +71,11 @@ namespace StatsAsTokens
 			string pType;
 			if (owner.IsMainPlayer)
 			{
-				pType = "hostPlayer";
+				pType = "hostplayer";
 			}
 			else if (owner.IsLocalPlayer)
 			{
-				pType = "localPlayer";
+				pType = "localplayer";
 			}
 			else
 			{
