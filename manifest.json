@@ -1,7 +1,7 @@
 {
   "Name": "Stats As Tokens",
   "Author": "Vertigon",
-  "Version": "0.5.4",
+  "Version": "0.5.6",
   "Description": "Exposes all stats tracked by the game, as well as some custom ones and miscellaneous other tokens, for use by CP packs.",
   "UniqueID": "Vertigon.StatsAsTokens",
   "EntryDll": "StatsAsTokens.dll",

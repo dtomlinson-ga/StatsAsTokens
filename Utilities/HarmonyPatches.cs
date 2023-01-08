@@ -7,6 +7,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see https://www.gnu.org/licenses/.
 
+using System;
 using HarmonyLib;
 using StardewValley;
 using StardewValley.TerrainFeatures;
@@ -14,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using StardewModdingAPI;
 using Object = StardewValley.Object;
 
 namespace StatsAsTokens
@@ -59,39 +61,53 @@ namespace StatsAsTokens
 
 		[HarmonyPatch(typeof(Tree), "performTreeFall")]
 		[HarmonyPrefix]
-		public static void Tree_performTreeFall_Prefix(Tree __instance, Tool t)
+		public static bool Tree_performTreeFall_Prefix(Tree __instance, Tool t)
 		{
-			Farmer owner = t?.getLastFarmerToUse();
-
-			if (owner == null)
+			try
 			{
-				return;
-			}
+				Farmer owner = t?.getLastFarmerToUse();
 
-			string pType;
-			if (owner.IsMainPlayer)
-			{
-				pType = "hostplayer";
-			}
-			else if (owner.IsLocalPlayer)
-			{
-				pType = "localplayer";
-			}
-			else
-			{
-				return;
-			}
+				if (owner == null)
+				{
+					return true;
+				}
 
-			string treeType = __instance.treeType.ToString();
+				string pType;
+				if (owner.IsMainPlayer)
+				{
+					pType = "hostplayer";
+				}
+				else if (owner.IsLocalPlayer)
+				{
+					pType = "localplayer";
+				}
+				else
+				{
+					return true;
+				}
 
-			// condense palm trees (palm and palm2) into one entry
-			if (treeType == "9")
-			{
-				treeType = "6";
+				string treeType = __instance.treeType.ToString();
+
+				// condense palm trees (palm and palm2) into one entry
+				if (treeType == "9")
+				{
+					treeType = "6";
+				}
+
+				Dictionary<string, Dictionary<string, int>> treeDict = TreesFelledToken.treesFelledDict.Value;
+
+				if (treeDict.ContainsKey(pType))
+				{
+					treeDict[pType][treeType] = treeDict[pType].ContainsKey(treeType) ? treeDict[pType][treeType] + 1 : 1;
+				}
+				
+				return true;
 			}
-
-			Dictionary<string, Dictionary<string, int>> treeDict = TreesFelledToken.treesFelledDict.Value;
-			treeDict[pType][treeType] = treeDict[pType].ContainsKey(treeType) ? treeDict[pType][treeType] + 1 : 1;
+			catch (Exception e)
+			{
+				Globals.Monitor.Log(e.ToString());
+				return true;
+			}
 		}
 
 		[HarmonyPatch(typeof(Object), nameof(Object.performObjectDropInAction))]
