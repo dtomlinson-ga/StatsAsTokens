@@ -192,7 +192,7 @@ namespace StatsAsTokens
 		/// Initializes internal dictionary to 0.
 		/// </summary>
 		/// <returns>A dictionary with all tree types as keys, initialized to value 0.</returns>
-		private static Dictionary<string, int> InitializeTreesFelledStats()
+		internal static Dictionary<string, int> InitializeTreesFelledStats()
 		{
 			return new Dictionary<string, int>()
 			{

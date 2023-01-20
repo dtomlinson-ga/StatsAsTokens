@@ -36,27 +36,45 @@ namespace StatsAsTokens
 
 		[HarmonyPatch(typeof(Farmer), nameof(Farmer.eatObject))]
 		[HarmonyPrefix]
-		public static void Farmer_eatObject_Prefix(Farmer __instance, StardewValley.Object o)
+		public static bool Farmer_eatObject_Prefix(Farmer __instance, StardewValley.Object o)
 		{
-			string foodID = o.ParentSheetIndex.ToString();
-			Farmer f = __instance;
+			try
+			{
+				string foodID = o.ParentSheetIndex.ToString();
+				Farmer f = __instance;
 
-			string pType;
-			if (f.IsMainPlayer && f.IsLocalPlayer)
-			{
-				pType = "hostPlayer";
-			}
-			else if (f.IsLocalPlayer)
-			{
-				pType = "localPlayer";
-			}
-			else
-			{
-				return;
-			}
+				string pType;
+				if (f.IsMainPlayer && f.IsLocalPlayer)
+				{
+					pType = "hostplayer";
+				}
+				else if (f.IsLocalPlayer)
+				{
+					pType = "localplayer";
+				}
+				else
+				{
+					return true;
+				}
 
-			Dictionary<string, Dictionary<string, int>> foodDict = FoodEatenToken.foodEatenDict.Value;
-			foodDict[pType][foodID] = foodDict[pType].ContainsKey(foodID) ? foodDict[pType][foodID] + 1 : 1;
+
+				Dictionary<string, Dictionary<string, int>> foodDict = FoodEatenToken.foodEatenDict.Value;
+				if (foodDict.ContainsKey(pType))
+				{
+					foodDict[pType][foodID] = foodDict[pType].ContainsKey(foodID) ? foodDict[pType][foodID] + 1 : 1;
+				}
+				else
+				{
+					foodDict[pType] = FoodEatenToken.InitializeFoodEatenStats();
+				}
+
+				return true;
+			}
+			catch (Exception e)
+			{
+				Globals.Monitor.Log(e.ToString());
+				return true;
+			}
 		}
 
 		[HarmonyPatch(typeof(Tree), "performTreeFall")]
@@ -100,6 +118,10 @@ namespace StatsAsTokens
 				{
 					treeDict[pType][treeType] = treeDict[pType].ContainsKey(treeType) ? treeDict[pType][treeType] + 1 : 1;
 				}
+				else
+				{
+					treeDict[pType] = TreesFelledToken.InitializeTreesFelledStats();
+				}
 				
 				return true;
 			}
@@ -121,10 +143,8 @@ namespace StatsAsTokens
 			{
 				minsReady = __instance.MinutesUntilReady;
 			}
-			if (dropInItem is StardewValley.Object)
+			if (dropInItem is StardewValley.Object dropIn)
 			{
-				StardewValley.Object dropIn = dropInItem as StardewValley.Object;
-
 				if (dropIn.Stack >= 5 && dropIn.ParentSheetIndex is 378 or 380 or 384 or 386)
 				{
 					isValidInput = true;

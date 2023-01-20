@@ -181,7 +181,7 @@ namespace StatsAsTokens
 		/// Initializes internal dictionary to 0. Scrapes ObjectInformation to locate all edible items (edibility != -300).
 		/// </summary>
 		/// <returns>A dictionary with all food items as keys, initialized to value 0.</returns>
-		private static SerializableDictionary<string, int> InitializeFoodEatenStats()
+		internal static SerializableDictionary<string, int> InitializeFoodEatenStats()
 		{
 			SerializableDictionary<string, int> foodEaten = new();
 
